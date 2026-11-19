@@ -97,54 +97,84 @@
     </div>
   </header>
 
-  <!-- ================= VIEW 1: CALENDAR VIEW ================= -->
-  <main id="view-calendar" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-    <!-- Month Summary Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
-      <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-        <div class="text-xs font-medium text-[#8b9bb4]">2026年11月 累計淨盈虧</div>
-        <div class="text-2xl font-bold font-mono mt-1 text-rose-400">-$4.71 USD</div>
-        <div class="text-[11px] text-[#8b9bb4] mt-1">11/18 (+$6.94) ｜ 11/19 (-$11.65)</div>
+    <!-- ================= VIEW 1: CALENDAR VIEW ================= -->
+  <main id="view-calendar" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5">
+    
+    <!-- 1. MONTH TOP KPI CARDS (5 Cards: Net PnL, Gross Win, Gross Loss, Avg Win/Loss, Win Rate) -->
+    <div id="monthly-kpis-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <!-- Dynamically populated via JS -->
+    </div>
+
+    <!-- 2. MONTHLY SESSION BREAKDOWN BLOCK (該月在各 Session 的盈虧合計) -->
+    <div class="bg-[#121824] border border-[#1e2638] rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1e2638] pb-3">
+        <div class="flex items-center gap-2">
+          <span class="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+          <div>
+            <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              全月交易時段合計表現 (Monthly Session Performance)
+            </h2>
+            <p class="text-[11px] text-[#8b9bb4]">按香港時間及紐約時間劃分之月度累積表現分析</p>
+          </div>
+        </div>
+        <div class="text-xs text-[#8b9bb4]">
+          共 21 筆月度交易彙整
+        </div>
       </div>
-      <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-        <div class="text-xs font-medium text-[#8b9bb4]">交易日勝率 (Days WR)</div>
-        <div class="text-2xl font-bold font-mono mt-1 text-amber-400">50.0%</div>
-        <div class="text-[11px] text-[#8b9bb4] mt-1">1 綠日 / 1 紅日 (共 2 天)</div>
+
+      <!-- 5 Session Summary Cards -->
+      <div id="monthly-sessions-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        <!-- Dynamically populated via JS -->
       </div>
-      <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-        <div class="text-xs font-medium text-[#8b9bb4]">訂單總勝率 (Trades WR)</div>
-        <div class="text-2xl font-bold font-mono mt-1 text-amber-400">38.1%</div>
-        <div class="text-[11px] text-[#8b9bb4] mt-1">8 勝 / 13 負 (共 21 筆)</div>
-      </div>
-      <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-        <div class="text-xs font-medium text-[#8b9bb4]">黃金淨利 (XAUUSD Edge)</div>
-        <div class="text-2xl font-bold font-mono mt-1 text-emerald-400">+$27.54 USD</div>
-        <div class="text-[11px] text-emerald-400/80 mt-1">12 戰 7 勝 (勝率 58.3%)</div>
-      </div>
-      <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-        <div class="text-xs font-medium text-[#8b9bb4]">帳戶當前權益 (Equity)</div>
-        <div class="text-2xl font-bold font-mono mt-1 text-white">$416.29</div>
-        <div class="text-[11px] text-emerald-400 mt-1">✓ 目前空倉無持倉</div>
+
+      <!-- Quant Insight Bar -->
+      <div class="px-3.5 py-2.5 rounded-xl bg-[#0b0e14] border border-[#1e2638] flex items-center gap-2 text-xs">
+        <span class="text-amber-400 font-bold flex-shrink-0">💡 時段優勢洞察：</span>
+        <span class="text-gray-300">
+          <strong class="text-emerald-400">亞盤 (09:00-11:00)</strong> 展現 100% 勝率之強大 Alpha (+$27.81 USD)；而 <strong class="text-rose-400">美盤及歐盤</strong> 屬於主要回撤時段 (-$26.64 USD)，建議控制歐美盤的高頻搏擊。
+        </span>
       </div>
     </div>
 
-    <!-- Calendar Month Box -->
-    <div class="bg-[#121824] border border-[#1e2638] rounded-2xl p-5 shadow-sm">
+    <!-- 3. MONTHLY SYMBOL BREAKDOWN & ALPHA (建議功能：月度各品種表現分佈) -->
+    <div class="bg-[#121824] border border-[#1e2638] rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-[#1e2638] pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          </span>
+          <div>
+            <h2 class="text-sm sm:text-base font-bold text-white">品種表現分佈 (Monthly Symbol Alpha)</h2>
+            <p class="text-[11px] text-[#8b9bb4]">清楚辨識個人提款品種與失血防範點</p>
+          </div>
+        </div>
+        <span class="text-xs font-mono text-emerald-400 font-bold">XAUUSD 勝率 58.3%</span>
+      </div>
+      <div id="monthly-symbols-container" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <!-- Dynamically populated via JS -->
+      </div>
+    </div>
+
+    <!-- 4. CALENDAR MONTH VIEW (Interactive Day Cards) -->
+    <div class="bg-[#121824] border border-[#1e2638] rounded-2xl p-4 sm:p-5 shadow-sm">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-[#1e2638] gap-3">
         <div class="flex items-center gap-3">
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <span>📅 2026 年 11 月 (November 2026)</span>
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <span>📅 2026 年 11 月交易日曆 (Trading Calendar)</span>
           </h2>
           <span class="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-            點擊有交易紀錄的日期直接進入當日覆盤
+            點擊日期進入該日獨立覆盤與 3-Pane 終端
           </span>
         </div>
-        <div class="flex items-center gap-2 text-xs">
-          <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500/20 border border-emerald-500/50"></span> 盈利日</span>
-          <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-rose-500/20 border border-rose-500/50"></span> 虧損日</span>
+        <div class="flex items-center gap-3 text-xs">
+          <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> 盈利日 (Win)</span>
+          <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> 虧損日 (Loss)</span>
         </div>
       </div>
 
+      <!-- Week Header -->
       <div class="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-[#8b9bb4] uppercase">
         <div class="py-1">Sun</div>
         <div class="py-1 text-white">Mon</div>
@@ -155,6 +185,7 @@
         <div class="py-1">Sat</div>
       </div>
 
+      <!-- Calendar Grid Cells -->
       <div class="grid grid-cols-7 gap-2 text-xs font-mono" id="calendar-grid">
         <!-- Rendered dynamically via JS below -->
       </div>
@@ -332,7 +363,177 @@
       }
     }
 
-    // 2. Render Calendar View (November 2026)
+    
+    // ==========================================
+    // 2. DYNAMIC MONTHLY STATS & CALENDAR RENDER
+    // ==========================================
+    function renderMonthlyOverview() {
+      // Collect all trades across all recorded days
+      let allTrades = [];
+      let totalDays = 0;
+      let winDays = 0;
+      let lossDays = 0;
+
+      Object.values(journalDb.days).forEach(d => {
+        totalDays++;
+        if (d.net_pnl > 0) winDays++;
+        else if (d.net_pnl < 0) lossDays++;
+        allTrades = allTrades.concat(d.trades);
+      });
+
+      const wins = allTrades.filter(t => t.pnl > 0);
+      const losses = allTrades.filter(t => t.pnl < 0);
+      const grossProfit = wins.reduce((acc, t) => acc + t.pnl, 0);
+      const grossLoss = losses.reduce((acc, t) => acc + t.pnl, 0);
+      const netPnl = grossProfit + grossLoss;
+      const avgWin = wins.length > 0 ? grossProfit / wins.length : 0;
+      const avgLoss = losses.length > 0 ? Math.abs(grossLoss) / losses.length : 0;
+      const payoffRatio = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : '--';
+      const tradeWinRate = allTrades.length > 0 ? ((wins.length / allTrades.length) * 100).toFixed(1) : 0;
+      const dayWinRate = totalDays > 0 ? ((winDays / totalDays) * 100).toFixed(1) : 0;
+      const expectancy = allTrades.length > 0 ? (netPnl / allTrades.length).toFixed(2) : '0.00';
+
+      // 1. Render Top 5 KPI Cards (Clean, NO daily list subtext under Net PnL)
+      const kpisContainer = document.getElementById('monthly-kpis-container');
+      const netColor = netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400';
+      const netSign = netPnl >= 0 ? '+' : '';
+
+      kpisContainer.innerHTML = `
+        <!-- Card 1: 該月累計盈利 (無細字每日盈虧) -->
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
+          <div class="text-xs font-medium text-[#8b9bb4]">2026年11月 累計淨盈虧</div>
+          <div class="text-2xl font-extrabold font-mono mt-1.5 ${netColor}">${netSign}$${netPnl.toFixed(2)} USD</div>
+          <div class="text-[11px] text-[#8b9bb4] mt-1.5 font-sans">${totalDays} 個交易日 ｜ ${allTrades.length} 筆訂單</div>
+        </div>
+
+        <!-- Card 2: 總盈利 (Gross Profit) -->
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
+          <div class="text-xs font-medium text-[#8b9bb4]">總盈利 (Gross Profit)</div>
+          <div class="text-2xl font-extrabold font-mono mt-1.5 text-emerald-400">+$${grossProfit.toFixed(2)}</div>
+          <div class="text-[11px] text-emerald-400/80 mt-1.5 font-sans">共 ${wins.length} 筆盈利單</div>
+        </div>
+
+        <!-- Card 3: 總虧損 (Gross Loss) -->
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
+          <div class="text-xs font-medium text-[#8b9bb4]">總虧損 (Gross Loss)</div>
+          <div class="text-2xl font-extrabold font-mono mt-1.5 text-rose-400">-$${Math.abs(grossLoss).toFixed(2)}</div>
+          <div class="text-[11px] text-rose-400/80 mt-1.5 font-sans">共 ${losses.length} 筆虧損單</div>
+        </div>
+
+        <!-- Card 4: 平均盈利 / 平均虧損 -->
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
+          <div class="text-xs font-medium text-[#8b9bb4]">平均盈利 / 平均虧損</div>
+          <div class="text-xl sm:text-2xl font-extrabold font-mono mt-1.5 text-white">
+            <span class="text-emerald-400">+$${avgWin.toFixed(2)}</span> / <span class="text-rose-400">-$${avgLoss.toFixed(2)}</span>
+          </div>
+          <div class="text-[11px] text-[#8b9bb4] mt-1.5 font-sans">盈虧比 (Payoff): <span class="text-white font-bold">${payoffRatio} : 1</span></div>
+        </div>
+
+        <!-- Card 5: 勝率統計 & 期望值 -->
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
+          <div class="text-xs font-medium text-[#8b9bb4]">訂單總勝率 (Win Rate)</div>
+          <div class="text-2xl font-extrabold font-mono mt-1.5 text-amber-400">${tradeWinRate}%</div>
+          <div class="text-[11px] text-[#8b9bb4] mt-1.5 font-sans">日勝率: ${dayWinRate}% ｜ 每筆期望: <span class="${expectancy >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">$${expectancy}</span></div>
+        </div>
+      `;
+
+      // 2. Render Monthly Session Breakdown (全月各 Session 合計)
+      const sessionDefs = [
+        { key: 'asia', label: '亞盤', timeRange: 'HKT 09:00 - 11:00' },
+        { key: 'london', label: '歐盤', timeRange: 'NY 02:00 - 05:00' },
+        { key: 'premarket', label: 'PreMarket', timeRange: 'NY 07:00 - 09:00' },
+        { key: 'ny', label: '美盤', timeRange: 'NY 09:30 - 11:00' },
+        { key: 'other', label: '其它時段', timeRange: '其它交收/過夜' }
+      ];
+
+      const sessionStats = {};
+      sessionDefs.forEach(s => {
+        sessionStats[s.key] = { ...s, trades: [], pnl: 0, wins: 0, losses: 0 };
+      });
+
+      allTrades.forEach(t => {
+        const code = t.session_code || 'other';
+        if (sessionStats[code]) {
+          sessionStats[code].trades.push(t);
+          sessionStats[code].pnl += t.pnl;
+          if (t.pnl > 0) sessionStats[code].wins++;
+          else if (t.pnl < 0) sessionStats[code].losses++;
+        }
+      });
+
+      const sessionsContainer = document.getElementById('monthly-sessions-container');
+      sessionsContainer.innerHTML = '';
+
+      sessionDefs.forEach(s => {
+        const st = sessionStats[s.key];
+        const count = st.trades.length;
+        const sPnl = st.pnl;
+        const sColor = sPnl > 0 ? 'text-emerald-400' : (sPnl < 0 ? 'text-rose-400' : 'text-gray-400');
+        const sBg = sPnl > 0 ? 'bg-emerald-500/5 border-emerald-500/20' : (sPnl < 0 ? 'bg-rose-500/5 border-rose-500/20' : 'bg-[#0b0e14] border-[#1e2638]');
+        const sSign = sPnl > 0 ? '+' : '';
+        const sWr = count > 0 ? ((st.wins / count) * 100).toFixed(1) : '0.0';
+
+        const card = document.createElement('div');
+        card.className = `p-3.5 rounded-xl border flex flex-col justify-between ${sBg}`;
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-xs sm:text-sm text-white">${st.label}</span>
+              <span class="text-[10px] font-sans px-1.5 py-0.5 rounded font-bold bg-[#121824] border border-[#1e2638] text-[#8b9bb4]">${count} 筆單</span>
+            </div>
+            <div class="text-[10px] text-[#8b9bb4] mt-0.5">${st.timeRange}</div>
+          </div>
+          <div class="my-2.5">
+            <div class="text-lg sm:text-xl font-extrabold font-mono ${sColor}">${sSign}$${sPnl.toFixed(2)}</div>
+          </div>
+          <div class="text-[11px] font-sans flex items-center justify-between text-[#8b9bb4] pt-1.5 border-t border-white/5">
+            <span>勝率: <strong class="text-white">${sWr}%</strong></span>
+            <span>${st.wins}勝 / ${st.losses}負</span>
+          </div>
+        `;
+        sessionsContainer.appendChild(card);
+      });
+
+      // 3. Render Monthly Symbol Breakdown (XAUUSD vs NAS100 vs BTCUSD)
+      const symbolsContainer = document.getElementById('monthly-symbols-container');
+      symbolsContainer.innerHTML = '';
+
+      const symKeys = ['XAUUSD', 'NAS100', 'BTCUSD'];
+      symKeys.forEach(sym => {
+        const sTrades = allTrades.filter(t => t.sym === sym);
+        const sWins = sTrades.filter(t => t.pnl > 0);
+        const sLosses = sTrades.filter(t => t.pnl < 0);
+        const sPnl = sTrades.reduce((acc, t) => acc + t.pnl, 0);
+        const sColor = sPnl > 0 ? 'text-emerald-400' : 'text-rose-400';
+        const sSign = sPnl > 0 ? '+' : '';
+        const sWr = sTrades.length > 0 ? ((sWins.length / sTrades.length) * 100).toFixed(1) : '0.0';
+        const tag = sym === 'XAUUSD' 
+          ? '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">核心盈利品種</span>'
+          : (sym === 'NAS100' ? '<span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">過度頻密切換</span>' : '<span class="text-[10px] px-2 py-0.5 rounded bg-gray-500/10 text-gray-400 border border-gray-500/20 font-bold">試水觀察單</span>');
+
+        const symCard = document.createElement('div');
+        symCard.className = "p-3.5 rounded-xl border border-[#1e2638] bg-[#0b0e14] flex flex-col justify-between";
+        symCard.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-sm text-white">${sym}</span>
+            ${tag}
+          </div>
+          <div class="my-2">
+            <span class="text-xl font-extrabold font-mono ${sColor}">${sSign}$${sPnl.toFixed(2)} USD</span>
+          </div>
+          <div class="text-xs text-[#8b9bb4] flex items-center justify-between pt-1 border-t border-[#1e2638]">
+            <span>${sTrades.length} 戰 ${sWins.length} 勝</span>
+            <span>勝率 <strong class="text-white">${sWr}%</strong></span>
+          </div>
+        `;
+        symbolsContainer.appendChild(symCard);
+      });
+
+      // 4. Render Calendar Grid with Symbol Highlights
+      renderMonthlyOverview();
+    }
+
+    // Render Calendar Grid Cells with Enhanced Badges
     function renderCalendar() {
       const grid = document.getElementById('calendar-grid');
       grid.innerHTML = '';
@@ -351,6 +552,11 @@
             : 'bg-rose-500/10 border-rose-500/40 hover:bg-rose-500/20 text-rose-400';
           const pnlText = isWin ? `+$${dayData.net_pnl.toFixed(2)}` : `-$${Math.abs(dayData.net_pnl).toFixed(2)}`;
 
+          // Find primary symbol for this day
+          const xauTrades = dayData.trades.filter(t => t.sym === 'XAUUSD');
+          const xauPnl = xauTrades.reduce((acc, t) => acc + t.pnl, 0);
+          const xauText = xauTrades.length > 0 ? `XAU ${xauPnl >= 0 ? '+' : ''}$${xauPnl.toFixed(1)}` : '';
+
           cell.className = `cal-cell active-day p-3 rounded-xl border flex flex-col justify-between ${bgClass}`;
           cell.onclick = () => {
             loadDate(dateKey);
@@ -364,6 +570,7 @@
             </div>
             <div class="my-1.5">
               <span class="text-base font-extrabold block font-mono tracking-tight">${pnlText}</span>
+              <span class="text-[10px] text-gray-300 font-sans block mt-0.5">${xauText}</span>
             </div>
             <div class="text-[10px] text-[#8b9bb4] font-sans flex items-center justify-between pt-1 border-t border-current/20">
               <span>勝率 ${dayData.win_rate}%</span>
@@ -381,6 +588,7 @@
         grid.appendChild(cell);
       }
     }
+
 
     // 3. Load Date into Daily Detail View
     function loadDate(dateKey) {
@@ -827,7 +1035,7 @@
     }
 
     // Init App
-    renderCalendar();
+    renderMonthlyOverview();
     loadDate('2026-11-18');
   </script>
 </body>
