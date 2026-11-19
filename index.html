@@ -1090,8 +1090,7 @@
       svg.push(`<text x="${margin_left + 15}" y="36" fill="#ffffff" font-size="13" font-weight="bold">${trade.sym} Trade #${trade.id} ${tf} K線 (${bars.length} Bars)</text>`);
 
       svg.push(`</svg>`);
-      return svg.join('
-');
+      return svg.join('');
     }
 
     function renderViewport() {
