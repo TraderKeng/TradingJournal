@@ -6,8 +6,24 @@
   <title>TraderKeng | 專業交易日誌與量化月曆 (Trading Journal)</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0e14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2638;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2b354d;
+    }
+
     .cal-cell {
-      min-height: 105px;
+      min-height: 100px;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .cal-cell.active-day {
@@ -15,51 +31,51 @@
     }
     .cal-cell.active-day:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
     }
     .metric-card {
-      transition: all 0.2s ease-in-out;
+      transition: all 0.15s ease-in-out;
     }
     .metric-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
     .trade-row {
       cursor: pointer;
-      transition: background-color 0.15s ease;
+      transition: background-color 0.12s ease;
     }
     .trade-row:hover {
-      background-color: rgba(59, 130, 246, 0.08);
+      background-color: rgba(59, 130, 246, 0.10);
     }
     .trade-row.active-row {
-      background-color: rgba(59, 130, 246, 0.16);
+      background-color: rgba(59, 130, 246, 0.20);
       border-left: 3px solid #3b82f6;
     }
   </style>
 </head>
-<body class="bg-[#0b0e14] text-[#e1e7ec] antialiased p-3 sm:p-6 lg:p-8 min-h-screen">
+<body class="bg-[#0b0e14] text-[#e1e7ec] antialiased h-screen flex flex-col overflow-hidden">
 
-  <!-- Top App Navigation Bar -->
-  <header class="flex flex-col md:flex-row md:items-center justify-between pb-5 mb-6 border-b border-[#1e2638] gap-4">
+  <!-- ================= TOP APP HEADER ================= -->
+  <header class="flex-shrink-0 flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-3 border-b border-[#1e2638] bg-[#0d121c] gap-3 z-30">
     <div class="flex items-center gap-3">
-      <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 font-extrabold text-base border border-blue-500/20 shadow-sm">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 font-extrabold text-sm border border-blue-500/20 shadow-sm">
         TJ
       </span>
       <div>
-        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+        <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
           <span>TraderKeng Trading Journal</span>
-          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live</span>
+          <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live</span>
         </h1>
-        <p class="text-xs text-[#8b9bb4]">Pepperstone cTrader 實盤日誌 ｜ 香港時間 (HKT, UTC+8)</p>
+        <p class="text-[11px] text-[#8b9bb4]">Pepperstone cTrader 實盤日誌 ｜ 香港時間 (HKT, UTC+8)</p>
       </div>
     </div>
 
     <!-- Navigation Switcher -->
-    <div class="flex items-center gap-2 bg-[#121824] p-1.5 rounded-xl border border-[#1e2638] text-xs font-semibold">
-      <button onclick="showView('calendar')" id="nav-btn-cal" class="px-3.5 py-1.5 rounded-lg bg-[#1e2638] text-white shadow-sm flex items-center gap-1.5 transition-all">
+    <div class="flex items-center gap-1.5 bg-[#121824] p-1 rounded-xl border border-[#1e2638] text-xs font-semibold">
+      <button onclick="showView('calendar')" id="nav-btn-cal" class="px-3 py-1.5 rounded-lg bg-[#1e2638] text-white shadow-sm flex items-center gap-1.5 transition-all">
         <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         日曆月視圖 (Calendar)
       </button>
-      <button onclick="showView('daily')" id="nav-btn-daily" class="px-3.5 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white flex items-center gap-1.5 transition-all">
+      <button onclick="showView('daily')" id="nav-btn-daily" class="px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white flex items-center gap-1.5 transition-all">
         <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         單日詳細覆盤 (Daily Detail)
       </button>
@@ -67,8 +83,7 @@
   </header>
 
   <!-- ================= VIEW 1: CALENDAR VIEW ================= -->
-  <main id="view-calendar" class="space-y-6">
-    
+  <main id="view-calendar" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
     <!-- Month Summary Stats -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
       <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
@@ -98,7 +113,7 @@
       </div>
     </div>
 
-    <!-- Calendar Month Navigation & Instructions -->
+    <!-- Calendar Month Box -->
     <div class="bg-[#121824] border border-[#1e2638] rounded-2xl p-5 shadow-sm">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-[#1e2638] gap-3">
         <div class="flex items-center gap-3">
@@ -115,7 +130,6 @@
         </div>
       </div>
 
-      <!-- Calendar Weekday Header (Mon - Sun) -->
       <div class="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-[#8b9bb4] uppercase">
         <div class="py-1">Sun</div>
         <div class="py-1 text-white">Mon</div>
@@ -126,105 +140,117 @@
         <div class="py-1">Sat</div>
       </div>
 
-      <!-- Calendar Days Grid (Nov 2026 starts on Sunday Nov 1) -->
       <div class="grid grid-cols-7 gap-2 text-xs font-mono" id="calendar-grid">
         <!-- Rendered dynamically via JS below -->
       </div>
     </div>
   </main>
 
-  <!-- ================= VIEW 2: DAILY DETAIL VIEW ================= -->
-  <main id="view-daily" class="space-y-6 hidden">
+  <!-- ================= VIEW 2: DAILY DETAIL VIEW (3-PANE LAYOUT) ================= -->
+  <main id="view-daily" class="flex-1 flex flex-col overflow-hidden hidden px-4 sm:px-6 pb-4">
     
-    <!-- Top Action bar with Back button and Date Switcher -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm gap-4">
-      <div class="flex items-center gap-3">
-        <button onclick="showView('calendar')" class="px-3 py-1.5 rounded-xl bg-[#1e2638] hover:bg-[#2b354d] text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
-          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          返回日曆總覽
-        </button>
-        <div class="h-6 w-px bg-[#1e2638]"></div>
-        <div>
-          <h2 id="daily-header-title" class="text-base font-bold text-white">2026-11-18 交易詳細覆盤</h2>
-          <p id="daily-header-subtitle" class="text-xs text-[#8b9bb4]">11 筆交易 ｜ 淨盈虧: +$6.94 USD</p>
-        </div>
-      </div>
-
-      <!-- Quick Date Selector -->
-      <div class="flex items-center gap-1.5 text-xs">
-        <button onclick="loadDate('2026-11-18')" id="btn-date-2026-11-18" class="date-select-btn px-3 py-1.5 rounded-lg bg-[#1e2638] text-emerald-400 font-bold border border-emerald-500/30">11-18 (+$6.94)</button>
-        <button onclick="loadDate('2026-11-19')" id="btn-date-2026-11-19" class="date-select-btn px-3 py-1.5 rounded-lg bg-[#121824] text-[#8b9bb4] hover:text-white border border-[#1e2638]">11-19 (-$11.65)</button>
-      </div>
-    </div>
-
-    <!-- Daily KPI Cards Grid -->
-    <div id="daily-kpi-container" class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-      <!-- Populated via JS -->
-    </div>
-
-    <!-- Multi-Timeframe K-Line Viewer Section -->
-    <div class="bg-[#121824] border-2 border-blue-500/30 rounded-2xl p-4 sm:p-6 shadow-xl">
-      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 mb-4 border-b border-[#1e2638] gap-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <span id="viewer-trade-badge" class="px-2.5 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">Trade #1</span>
-            <h3 id="viewer-trade-title" class="text-base sm:text-lg font-bold text-white">多週期真實 K 線 (各120支Bar ｜ 無成交量 ｜ 零遮擋)</h3>
+    <!-- 1. PART 1: TOP FIXED BLOCK (Header & 5 KPIs) - STRICTLY PINNED IN PLACE -->
+    <div class="flex-shrink-0 pt-3 pb-3 space-y-3 z-20 bg-[#0b0e14] border-b border-[#1e2638]">
+      
+      <!-- Sub-header bar with Back button and Date Switcher -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <button onclick="showView('calendar')" class="px-3 py-1.5 rounded-xl bg-[#1e2638] hover:bg-[#2b354d] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm">
+            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            返回日曆總覽
+          </button>
+          <div class="h-5 w-px bg-[#1e2638]"></div>
+          <div>
+            <h2 id="daily-header-title" class="text-sm sm:text-base font-bold text-white">2026-11-18 (Wed) 交易詳細覆盤</h2>
+            <p id="daily-header-subtitle" class="text-[11px] text-[#8b9bb4]">11 筆交易 ｜ 淨盈虧: +$6.94 USD ｜ 勝率: 45.5%</p>
           </div>
-          <p id="viewer-trade-subtitle" class="text-xs text-[#8b9bb4] mt-0.5">點擊下方日誌任一行，上方立即切換並繪製該單的 15m、5m 與 1m 圖表</p>
         </div>
 
-        <!-- Timeframe Toggle Buttons -->
-        <div class="flex items-center gap-1 p-1 bg-[#0b0e14] rounded-xl border border-[#1e2638] text-xs font-medium">
-          <button onclick="switchActiveTf('1m')" id="btn-tf-1m" class="tf-btn px-3 py-1.5 rounded-lg bg-[#1e2638] text-blue-400 font-bold shadow-xs">1m 微觀 (120)</button>
-          <button onclick="switchActiveTf('5m')" id="btn-tf-5m" class="tf-btn px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white">5m 波段 (120)</button>
-          <button onclick="switchActiveTf('15m')" id="btn-tf-15m" class="tf-btn px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white">15m 結構 (120)</button>
-          <button onclick="switchActiveTf('all')" id="btn-tf-all" class="tf-btn px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white">三圖並列</button>
+        <!-- Quick Date Switcher Pills -->
+        <div class="flex items-center gap-1.5 text-xs">
+          <button onclick="loadDate('2026-11-18')" id="btn-date-2026-11-18" class="date-select-btn px-3 py-1 rounded-lg bg-[#1e2638] text-emerald-400 font-bold border border-emerald-500/30">11-18 (+$6.94)</button>
+          <button onclick="loadDate('2026-11-19')" id="btn-date-2026-11-19" class="date-select-btn px-3 py-1 rounded-lg bg-[#121824] text-[#8b9bb4] hover:text-white border border-[#1e2638]">11-19 (-$11.65)</button>
         </div>
       </div>
 
-      <!-- SVG Chart Viewport -->
-      <div id="chart-viewport" class="w-full overflow-hidden rounded-xl bg-[#131722] min-h-[460px] flex items-center justify-center border border-[#1e2638]">
-        <!-- Rendered dynamically via JS -->
-      </div>
-
-      <!-- Stats Bar under chart -->
-      <div id="viewer-stats-bar" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-[#1e2638] text-xs">
-        <!-- Populated via JS -->
+      <!-- 5 Fixed KPI Cards -->
+      <div id="daily-kpi-container" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+        <!-- Populated dynamically via JS -->
       </div>
     </div>
 
-    <!-- Execution Log Table -->
-    <div class="bg-[#121824] border border-[#1e2638] rounded-2xl p-4 sm:p-6 shadow-sm">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div>
-          <h3 class="text-base font-semibold text-white">交易執行日誌 (Execution Log)</h3>
-          <p class="text-xs text-[#8b9bb4]">👉 點擊任意行（Row），上方自動更新展示該筆交易的多週期 K 線</p>
+    <!-- 2. LOWER SPLIT SECTION: LEFT LOG (INDEPENDENT SCROLL) vs RIGHT CHART (PINNED) -->
+    <div class="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden pt-3">
+      
+      <!-- PART 2: LEFT PANEL - EXECUTION LOG (INDEPENDENT SCROLL UP / DOWN) -->
+      <section class="w-full lg:w-[480px] xl:w-[520px] flex-shrink-0 flex flex-col bg-[#121824] border border-[#1e2638] rounded-2xl overflow-hidden shadow-sm">
+        
+        <!-- Sticky Table Header inside Left Pane -->
+        <div class="flex-shrink-0 px-4 py-3 bg-[#121824] border-b border-[#1e2638] flex items-center justify-between">
+          <div>
+            <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+              <span>📋 交易執行日誌 (Execution Log)</span>
+            </h3>
+            <p class="text-[10px] text-[#8b9bb4]">點擊任一行，右側即刻更新多週期圖表</p>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">獨立滾動</span>
         </div>
-      </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="text-[#8b9bb4] uppercase font-semibold border-b border-[#1e2638]">
-            <tr>
-              <th class="py-3 px-3">#</th>
-              <th class="py-3 px-3">時間 (HKT)</th>
-              <th class="py-3 px-3">品種</th>
-              <th class="py-3 px-3">方向</th>
-              <th class="py-3 px-3 text-right">數量</th>
-              <th class="py-3 px-3 text-right">進場價</th>
-              <th class="py-3 px-3 text-right">出場價</th>
-              <th class="py-3 px-3 text-right">波幅</th>
-              <th class="py-3 px-3 text-right">淨盈虧 (USD)</th>
-              <th class="py-3 px-4 text-center">操作</th>
-            </tr>
-          </thead>
-          <tbody id="trade-table-body" class="divide-y divide-[#1e2638] font-mono">
-            <!-- Populated via JS -->
-          </tbody>
-        </table>
-      </div>
+        <!-- Scrollable Table Body Container (Only this scrolls!) -->
+        <div class="flex-1 overflow-y-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="text-[#8b9bb4] uppercase text-[10px] font-semibold border-b border-[#1e2638] bg-[#0f141e] sticky top-0 z-10">
+              <tr>
+                <th class="py-2.5 px-3">#</th>
+                <th class="py-2.5 px-2">時間</th>
+                <th class="py-2.5 px-2">品種</th>
+                <th class="py-2.5 px-2">方向</th>
+                <th class="py-2.5 px-2 text-right">進場</th>
+                <th class="py-2.5 px-2 text-right">出場</th>
+                <th class="py-2.5 px-3 text-right">淨盈虧</th>
+              </tr>
+            </thead>
+            <tbody id="trade-table-body" class="divide-y divide-[#1e2638] font-mono text-[11px]">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PART 3: RIGHT PANEL - MULTI-TIMEFRAME CHART (FIXED & NEVER MOVES) -->
+      <section class="flex-1 flex flex-col bg-[#121824] border-2 border-blue-500/30 rounded-2xl overflow-hidden shadow-xl p-3.5 sm:p-4 min-w-0">
+        
+        <!-- Chart Controls Header -->
+        <div class="flex-shrink-0 flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-[#1e2638] gap-2">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span id="viewer-trade-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 flex-shrink-0">Trade #7</span>
+              <h3 id="viewer-trade-title" class="text-xs sm:text-sm font-bold text-white truncate">XAUUSD 多週期真實 K 線 (各120支Bar)</h3>
+            </div>
+            <p id="viewer-trade-subtitle" class="text-[11px] text-[#8b9bb4] mt-0.5 truncate">無成交量噪聲 ｜ 進出場標籤外移至頂底留白 ｜ 零遮擋 K 線</p>
+          </div>
+
+          <!-- Timeframe Selector Buttons -->
+          <div class="flex items-center gap-1 p-1 bg-[#0b0e14] rounded-xl border border-[#1e2638] text-xs font-medium flex-shrink-0">
+            <button onclick="switchActiveTf('1m')" id="btn-tf-1m" class="tf-btn px-2.5 py-1 rounded-lg bg-[#1e2638] text-blue-400 font-bold shadow-xs">1m 微觀</button>
+            <button onclick="switchActiveTf('5m')" id="btn-tf-5m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">5m 波段</button>
+            <button onclick="switchActiveTf('15m')" id="btn-tf-15m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">15m 結構</button>
+            <button onclick="switchActiveTf('all')" id="btn-tf-all" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">三圖並列</button>
+          </div>
+        </div>
+
+        <!-- Fixed SVG Chart Viewport -->
+        <div id="chart-viewport" class="flex-1 w-full overflow-hidden rounded-xl bg-[#131722] border border-[#1e2638] flex items-center justify-center p-1">
+          <!-- Rendered dynamically via JS -->
+        </div>
+
+        <!-- Fixed Stats summary bar under the chart -->
+        <div id="viewer-stats-bar" class="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-[#1e2638] text-xs">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </section>
+
     </div>
-
   </main>
 
   <!-- JAVASCRIPT LOGIC & EMBEDDED DATA -->
@@ -235,18 +261,18 @@
     let currentTradeId = 7;
     let currentTf = '1m';
 
-    // 1. Navigation Controller
+    // 1. Navigation View Switcher
     function showView(viewName) {
       if (viewName === 'calendar') {
         document.getElementById('view-calendar').classList.remove('hidden');
         document.getElementById('view-daily').classList.add('hidden');
-        document.getElementById('nav-btn-cal').className = "px-3.5 py-1.5 rounded-lg bg-[#1e2638] text-white shadow-sm flex items-center gap-1.5 transition-all";
-        document.getElementById('nav-btn-daily').className = "px-3.5 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white flex items-center gap-1.5 transition-all";
+        document.getElementById('nav-btn-cal').className = "px-3 py-1.5 rounded-lg bg-[#1e2638] text-white shadow-sm flex items-center gap-1.5 transition-all";
+        document.getElementById('nav-btn-daily').className = "px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white flex items-center gap-1.5 transition-all";
       } else {
         document.getElementById('view-calendar').classList.add('hidden');
         document.getElementById('view-daily').classList.remove('hidden');
-        document.getElementById('nav-btn-daily').className = "px-3.5 py-1.5 rounded-lg bg-[#1e2638] text-white shadow-sm flex items-center gap-1.5 transition-all";
-        document.getElementById('nav-btn-cal').className = "px-3.5 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white flex items-center gap-1.5 transition-all";
+        document.getElementById('nav-btn-daily').className = "px-3 py-1.5 rounded-lg bg-[#1e2638] text-white shadow-sm flex items-center gap-1.5 transition-all";
+        document.getElementById('nav-btn-cal').className = "px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white flex items-center gap-1.5 transition-all";
       }
     }
 
@@ -255,7 +281,6 @@
       const grid = document.getElementById('calendar-grid');
       grid.innerHTML = '';
 
-      // Nov 2026 starts on Sunday (Nov 1) -> 0 padding days! Total days = 30.
       for (let day = 1; day <= 30; day++) {
         const dayStr = day < 10 ? `0${day}` : `${day}`;
         const dateKey = `2026-11-${dayStr}`;
@@ -264,7 +289,6 @@
         const cell = document.createElement('div');
 
         if (dayData) {
-          // Active trading day
           const isWin = dayData.is_win;
           const bgClass = isWin 
             ? 'bg-emerald-500/10 border-emerald-500/40 hover:bg-emerald-500/20 text-emerald-400' 
@@ -287,11 +311,10 @@
             </div>
             <div class="text-[10px] text-[#8b9bb4] font-sans flex items-center justify-between pt-1 border-t border-current/20">
               <span>勝率 ${dayData.win_rate}%</span>
-              <span class="text-blue-400 underline">詳情 ➔</span>
+              <span class="text-blue-400 underline">查看覆盤 ➔</span>
             </div>
           `;
         } else {
-          // Inactive day
           cell.className = "cal-cell p-2.5 rounded-xl border border-[#1e2638] bg-[#0d121c] opacity-60 flex flex-col justify-between";
           cell.innerHTML = `
             <div class="text-left font-bold text-xs text-[#8b9bb4]">${day}</div>
@@ -309,59 +332,55 @@
       const dayData = journalDb.days[dateKey];
       if (!dayData) return;
 
-      // Update date switcher buttons
       document.querySelectorAll('.date-select-btn').forEach(b => {
-        b.className = "date-select-btn px-3 py-1.5 rounded-lg bg-[#121824] text-[#8b9bb4] hover:text-white border border-[#1e2638]";
+        b.className = "date-select-btn px-3 py-1 rounded-lg bg-[#121824] text-[#8b9bb4] hover:text-white border border-[#1e2638]";
       });
       const activeDateBtn = document.getElementById(`btn-date-${dateKey}`);
       if (activeDateBtn) {
         activeDateBtn.className = dayData.is_win
-          ? "date-select-btn px-3 py-1.5 rounded-lg bg-[#1e2638] text-emerald-400 font-bold border border-emerald-500/40"
-          : "date-select-btn px-3 py-1.5 rounded-lg bg-[#1e2638] text-rose-400 font-bold border border-rose-500/40";
+          ? "date-select-btn px-3 py-1 rounded-lg bg-[#1e2638] text-emerald-400 font-bold border border-emerald-500/40"
+          : "date-select-btn px-3 py-1 rounded-lg bg-[#1e2638] text-rose-400 font-bold border border-rose-500/40";
       }
 
-      // Update Header
       const pnlFormatted = dayData.is_win ? `+$${dayData.net_pnl.toFixed(2)}` : `-$${Math.abs(dayData.net_pnl).toFixed(2)}`;
       document.getElementById('daily-header-title').innerText = `${dateKey} (${dayData.day_of_week}) 交易詳細覆盤`;
       document.getElementById('daily-header-subtitle').innerText = `${dayData.trades_count} 筆交易 ｜ 淨盈虧: ${pnlFormatted} USD ｜ 勝率: ${dayData.win_rate}%`;
 
-      // Update Daily KPI Cards
       const pnlColor = dayData.is_win ? 'text-emerald-400' : 'text-rose-400';
       document.getElementById('daily-kpi-container').innerHTML = `
-        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-[#8b9bb4]">單日淨盈虧 (Net P&L)</div>
-          <div class="text-2xl font-bold font-mono mt-1 ${pnlColor}">${pnlFormatted}</div>
-          <div class="text-[11px] text-[#8b9bb4] mt-1">${dayData.trades_count} 筆已平倉交易</div>
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-xl p-2.5 sm:p-3 shadow-sm">
+          <div class="text-[10px] font-medium text-[#8b9bb4]">單日淨盈虧 (Net P&L)</div>
+          <div class="text-lg sm:text-xl font-bold font-mono mt-0.5 ${pnlColor}">${pnlFormatted}</div>
+          <div class="text-[10px] text-[#8b9bb4]">${dayData.trades_count} 筆已平倉</div>
         </div>
-        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-[#8b9bb4]">真實勝率 (Win Rate)</div>
-          <div class="text-2xl font-bold font-mono mt-1 text-white">${dayData.win_rate}%</div>
-          <div class="text-[11px] text-[#8b9bb4] mt-1">${dayData.win_count} 勝 / ${dayData.loss_count} 負</div>
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-xl p-2.5 sm:p-3 shadow-sm">
+          <div class="text-[10px] font-medium text-[#8b9bb4]">真實勝率 (Win Rate)</div>
+          <div class="text-lg sm:text-xl font-bold font-mono mt-0.5 text-white">${dayData.win_rate}%</div>
+          <div class="text-[10px] text-[#8b9bb4]">${dayData.win_count} 勝 / ${dayData.loss_count} 負</div>
         </div>
-        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-[#8b9bb4]">獲利因子 (Profit Factor)</div>
-          <div class="text-2xl font-bold font-mono mt-1 text-white">${dayData.profit_factor}</div>
-          <div class="text-[11px] text-[#8b9bb4] mt-1">${dayData.profit_factor >= 1.0 ? '健康正期望值' : '需控制回撤'}</div>
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-xl p-2.5 sm:p-3 shadow-sm">
+          <div class="text-[10px] font-medium text-[#8b9bb4]">獲利因子 (Profit Factor)</div>
+          <div class="text-lg sm:text-xl font-bold font-mono mt-0.5 text-white">${dayData.profit_factor}</div>
+          <div class="text-[10px] text-[#8b9bb4]">${dayData.profit_factor >= 1.0 ? '健康正期望值' : '需控制回撤'}</div>
         </div>
-        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-[#8b9bb4]">盈虧比 (Payoff Ratio)</div>
-          <div class="text-2xl font-bold font-mono mt-1 text-white">${dayData.payoff} : 1</div>
-          <div class="text-[11px] text-[#8b9bb4] mt-1">均盈 / 均損</div>
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-xl p-2.5 sm:p-3 shadow-sm">
+          <div class="text-[10px] font-medium text-[#8b9bb4]">盈虧比 (Payoff Ratio)</div>
+          <div class="text-lg sm:text-xl font-bold font-mono mt-0.5 text-white">${dayData.payoff} : 1</div>
+          <div class="text-[10px] text-[#8b9bb4]">均盈 / 均損</div>
         </div>
-        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-[#8b9bb4]">交易執行風格</div>
-          <div class="text-2xl font-bold font-mono mt-1 text-blue-400">1m/5m</div>
-          <div class="text-[11px] text-[#8b9bb4] mt-1">極短線 Scalping</div>
+        <div class="metric-card bg-[#121824] border border-[#1e2638] rounded-xl p-2.5 sm:p-3 shadow-sm col-span-2 sm:col-span-1">
+          <div class="text-[10px] font-medium text-[#8b9bb4]">交易執行風格</div>
+          <div class="text-lg sm:text-xl font-bold font-mono mt-0.5 text-blue-400">1m/5m</div>
+          <div class="text-[10px] text-[#8b9bb4]">極短線 Scalping</div>
         </div>
       `;
 
-      // Select default trade (First trade or best trade)
       currentTradeId = dayData.trades.length > 0 ? dayData.trades[0].id : 1;
       renderTable(dayData.trades);
       selectTrade(currentTradeId);
     }
 
-    // 4. Render Table
+    // 4. Render Table in Left Pane
     function renderTable(trades) {
       const tbody = document.getElementById('trade-table-body');
       tbody.innerHTML = '';
@@ -375,22 +394,17 @@
         const pnlFormatted = t.pnl > 0 ? `+$${t.pnl.toFixed(2)}` : `-$${Math.abs(t.pnl).toFixed(2)}`;
         const pnlClass = t.pnl > 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
         const sideBadge = t.side === 'BUY'
-          ? '<span class="px-2 py-0.5 rounded font-semibold text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">BUY</span>'
-          : '<span class="px-2 py-0.5 rounded font-semibold text-[11px] bg-blue-500/10 text-blue-400 border border-blue-500/20">SELL</span>';
+          ? '<span class="px-1.5 py-0.2 rounded font-semibold text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">BUY</span>'
+          : '<span class="px-1.5 py-0.2 rounded font-semibold text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20">SELL</span>';
 
         tr.innerHTML = `
-          <td class="py-3 px-3 text-[#8b9bb4]">${t.id}</td>
-          <td class="py-3 px-3 font-sans text-white">${t.in_time} – ${t.out_time}</td>
-          <td class="py-3 px-3 font-bold text-amber-400">${t.sym}</td>
-          <td class="py-3 px-3 font-sans">${sideBadge}</td>
-          <td class="py-3 px-3 text-right text-[#8b9bb4]">${t.vol}</td>
-          <td class="py-3 px-3 text-right text-white">${t.in_price}</td>
-          <td class="py-3 px-3 text-right text-white">${t.out_price}</td>
-          <td class="py-3 px-3 text-right text-[#8b9bb4]">${t.pts_diff}</td>
-          <td class="py-3 px-3 text-right ${pnlClass}">${pnlFormatted}</td>
-          <td class="py-3 px-4 text-center">
-            <button onclick="selectTrade(${t.id}); event.stopPropagation();" class="px-2.5 py-1 rounded-lg text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-medium border border-blue-500/20">查看K線</button>
-          </td>
+          <td class="py-2.5 px-3 text-[#8b9bb4]">${t.id}</td>
+          <td class="py-2.5 px-2 font-sans text-white text-[10px]">${t.in_time.substr(0,5)}</td>
+          <td class="py-2.5 px-2 font-bold text-amber-400 text-[10px]">${t.sym}</td>
+          <td class="py-2.5 px-2 font-sans">${sideBadge}</td>
+          <td class="py-2.5 px-2 text-right text-white text-[10px]">${t.in_price}</td>
+          <td class="py-2.5 px-2 text-right text-white text-[10px]">${t.out_price}</td>
+          <td class="py-2.5 px-3 text-right ${pnlClass} text-[11px]">${pnlFormatted}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -414,20 +428,20 @@
 
       const pnlColor = trade.pnl > 0 ? 'text-emerald-400' : 'text-rose-400';
       document.getElementById('viewer-stats-bar').innerHTML = `
-        <div class="p-3 rounded-xl bg-[#0b0e14] border border-[#1e2638]">
-          <span class="text-[#8b9bb4] block text-[11px]">進場點位 / 時間</span>
+        <div class="p-2 sm:p-2.5 rounded-lg bg-[#0b0e14] border border-[#1e2638]">
+          <span class="text-[#8b9bb4] block text-[10px]">進場點位 / 時間</span>
           <span class="font-bold text-white text-xs">${trade.in_price} (${trade.in_time})</span>
         </div>
-        <div class="p-3 rounded-xl bg-[#0b0e14] border border-[#1e2638]">
-          <span class="text-[#8b9bb4] block text-[11px]">出場點位 / 時間</span>
+        <div class="p-2 sm:p-2.5 rounded-lg bg-[#0b0e14] border border-[#1e2638]">
+          <span class="text-[#8b9bb4] block text-[10px]">出場點位 / 時間</span>
           <span class="font-bold text-white text-xs">${trade.out_price} (${trade.out_time})</span>
         </div>
-        <div class="p-3 rounded-xl bg-[#0b0e14] border border-[#1e2638]">
-          <span class="text-[#8b9bb4] block text-[11px]">波幅差額</span>
+        <div class="p-2 sm:p-2.5 rounded-lg bg-[#0b0e14] border border-[#1e2638]">
+          <span class="text-[#8b9bb4] block text-[10px]">波幅差額</span>
           <span class="font-bold text-white text-xs">${trade.pts_diff} pts</span>
         </div>
-        <div class="p-3 rounded-xl bg-[#0b0e14] border border-[#1e2638]">
-          <span class="text-[#8b9bb4] block text-[11px]">訂單淨收益</span>
+        <div class="p-2 sm:p-2.5 rounded-lg bg-[#0b0e14] border border-[#1e2638]">
+          <span class="text-[#8b9bb4] block text-[10px]">訂單淨收益</span>
           <span class="font-bold font-mono text-xs ${pnlColor}">${trade.pnl > 0 ? '+' : ''}${trade.pnl.toFixed(2)} USD</span>
         </div>
       `;
@@ -439,9 +453,9 @@
     function switchActiveTf(tf) {
       currentTf = tf;
       document.querySelectorAll('.tf-btn').forEach(b => {
-        b.className = "tf-btn px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white";
+        b.className = "tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white";
       });
-      document.getElementById(`btn-tf-${tf}`).className = "tf-btn px-3 py-1.5 rounded-lg bg-[#1e2638] text-blue-400 font-bold shadow-xs";
+      document.getElementById(`btn-tf-${tf}`).className = "tf-btn px-2.5 py-1 rounded-lg bg-[#1e2638] text-blue-400 font-bold shadow-xs";
       renderViewport();
     }
 
@@ -452,7 +466,7 @@
       const allBars = journalDb.bars[symbol] ? journalDb.bars[symbol][tfKey] : [];
 
       if (!allBars || allBars.length === 0) {
-        return `<div class="p-12 text-center text-gray-400 font-sans">暫無 ${symbol} ${tf} 的 K 線數據</div>`;
+        return `<div class="p-8 text-center text-gray-400 font-sans text-xs">暫無 ${symbol} ${tf} 的 K 線數據</div>`;
       }
 
       let exitIdx = allBars.findIndex(b => b[0] >= trade.out_ts);
@@ -496,7 +510,7 @@
       }
 
       let svg = [];
-      svg.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%" style="background:#131722; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif; border-radius:12px;">`);
+      svg.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%" style="background:#131722; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif; border-radius:10px;">`);
 
       // Horizontal Grid Lines
       for (let i = 0; i <= 5; i++) {
@@ -595,7 +609,7 @@
 
       if (currentTf === 'all') {
         vp.innerHTML = `
-          <div class="w-full space-y-6 p-2">
+          <div class="w-full h-full overflow-y-auto space-y-4 p-2">
             <div>${renderTradeSvg(trade, '15m')}</div>
             <div>${renderTradeSvg(trade, '5m')}</div>
             <div>${renderTradeSvg(trade, '1m')}</div>
