@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TraderKeng | 專業交易日誌與量化月曆 (Trading Journal)</title>
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js">
+    
+
+  </script>
   <style>
     /* Custom scrollbars */
     ::-webkit-scrollbar {
@@ -317,7 +320,7 @@
       </section>
 
       <!-- PART 3: RIGHT PANEL - MULTI-TIMEFRAME CHART (FIXED & NEVER MOVES) -->
-      <section class="flex-1 flex flex-col bg-[#121824] border-2 border-blue-500/30 rounded-2xl overflow-hidden shadow-xl p-3.5 sm:p-4 min-w-0">
+      <section class="flex-1 flex flex-col bg-[#121824] border-2 border-blue-500/30 rounded-2xl overflow-y-auto custom-scrollbar shadow-xl p-3.5 sm:p-4 min-w-0">
         
         <!-- Chart Controls Header -->
         <div class="flex-shrink-0 flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 mb-2.5 border-b border-[#1e2638] gap-2">
@@ -347,6 +350,60 @@
         <div id="viewer-stats-bar" class="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2.5 pt-2.5 border-t border-[#1e2638] text-xs">
           <!-- Populated dynamically via JS -->
         </div>
+
+        <!-- NEW: TRADE REVIEW, RATING & COMMENTARY PANEL (途徑A: 本地即時保存 + 導出同步) -->
+        <div id="trade-review-panel" class="flex-shrink-0 mt-3 pt-3 border-t border-[#1e2638] bg-[#0b0e14] rounded-xl p-3.5 border border-[#1e2638] space-y-3">
+          
+          <!-- Rating Header & Auto-save Status -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1e2638]/70 pb-2.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                訂單執行評分:
+              </span>
+              <!-- 5 Interactive Clickable Stars -->
+              <div id="review-stars-box" class="flex items-center gap-1 cursor-pointer">
+                <span onclick="setReviewRating(1)" onmouseover="hoverReviewRating(1)" onmouseout="resetHoverRating()" id="star-1" class="text-lg text-gray-600 transition-colors">★</span>
+                <span onclick="setReviewRating(2)" onmouseover="hoverReviewRating(2)" onmouseout="resetHoverRating()" id="star-2" class="text-lg text-gray-600 transition-colors">★</span>
+                <span onclick="setReviewRating(3)" onmouseover="hoverReviewRating(3)" onmouseout="resetHoverRating()" id="star-3" class="text-lg text-gray-600 transition-colors">★</span>
+                <span onclick="setReviewRating(4)" onmouseover="hoverReviewRating(4)" onmouseout="resetHoverRating()" id="star-4" class="text-lg text-gray-600 transition-colors">★</span>
+                <span onclick="setReviewRating(5)" onmouseover="hoverReviewRating(5)" onmouseout="resetHoverRating()" id="star-5" class="text-lg text-gray-600 transition-colors">★</span>
+              </div>
+              <span id="review-rating-desc" class="text-[11px] text-[#8b9bb4] font-medium ml-1">點擊星星評分</span>
+            </div>
+
+            <!-- Auto-save notification & Export button -->
+            <div class="flex items-center gap-2 text-xs">
+              <span id="review-saved-badge" class="text-[10px] text-emerald-400 font-bold opacity-0 transition-opacity flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                ✓ 已儲存
+              </span>
+              <button onclick="exportReviewsJson()" class="px-2.5 py-1 rounded-lg text-[11px] bg-[#1e2638] hover:bg-[#2b354d] text-gray-300 hover:text-white border border-[#2b354d] flex items-center gap-1 transition-all" title="導出/備份所有覆盤心得與評分">
+                <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                導出備份
+              </button>
+            </div>
+          </div>
+
+          <!-- Trade Psychology & Setup Tags -->
+          <div>
+            <div class="text-[11px] font-semibold text-[#8b9bb4] mb-1.5 flex items-center justify-between">
+              <span>覆盤標籤 (點選快速標註):</span>
+              <span class="text-[10px] text-gray-500">可多選</span>
+            </div>
+            <div id="review-tags-box" class="flex flex-wrap items-center gap-1.5 text-xs">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
+          <!-- Commentary Textarea -->
+          <div class="relative">
+            <textarea id="review-comment-textarea" oninput="onCommentChange()" rows="2" 
+              placeholder="在此輸入此 Trade 的進出場覆盤心得、交易心態、犯錯原因或下次改善點（輸入即時自動保存）..." 
+              class="w-full bg-[#121824] border border-[#1e2638] rounded-xl p-2.5 text-xs text-gray-200 placeholder-[#4f5d75] focus:outline-none focus:border-blue-500/70 focus:ring-1 focus:ring-blue-500/50 resize-none font-sans leading-relaxed"></textarea>
+          </div>
+
+        </div>
       </section>
 
     </div>
@@ -364,6 +421,204 @@
     let selectedSymbols = new Set(); // Empty means all symbols
     let selectedWinLoss = 'all';     // 'all', 'win', 'loss'
     let selectedSession = 'all';     // 'all', 'asia', 'london', 'premarket', 'ny', 'other'
+
+// ==========================================
+    // 11. TRADE REVIEW & RATING SYSTEM (途徑A: LocalStorage + UI)
+    // ==========================================
+    const DEFAULT_REVIEW_TAGS = [
+      // 正面執法
+      { name: '✓ 遵守紀律', type: 'pos' },
+      { name: '✓ 順勢回踩', type: 'pos' },
+      { name: '✓ 狙擊點位', type: 'pos' },
+      { name: '✓ 耐心等待', type: 'pos' },
+      { name: '✓ 果斷止損', type: 'pos' },
+      { name: '✓ 讓利潤奔跑', type: 'pos' },
+      // 警示反思
+      { name: '⚠️ 衝動追單 (FOMO)', type: 'neg' },
+      { name: '⚠️ 追高殺跌', type: 'neg' },
+      { name: '⚠️ 逆勢摸頂底', type: 'neg' },
+      { name: '⚠️ 扛單未止損', type: 'neg' },
+      { name: '⚠️ 過早平倉', type: 'neg' },
+      { name: '⚠️ 報復性過度交易', type: 'neg' }
+    ];
+
+    const RATING_DESCRIPTIONS = {
+      0: '點擊星星評分',
+      1: '★ 1.0 (嚴重失誤 / 衝動違規)',
+      2: '★★ 2.0 (執行不佳 / 僥倖扛單)',
+      3: '★★★ 3.0 (合格執行 / 達標)',
+      4: '★★★★ 4.0 (良好執行 / 計劃精準)',
+      5: '★★★★★ 5.0 (完美標杆 / 嚴格知行合一)'
+    };
+
+    function getReviewsDb() {
+      try {
+        const raw = localStorage.getItem('traderkeng_trade_reviews');
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveReviewsDb(db) {
+      try {
+        localStorage.setItem('traderkeng_trade_reviews', JSON.stringify(db));
+        showSavedIndicator();
+      } catch (e) {
+        console.error('Error saving reviews:', e);
+      }
+    }
+
+    function showSavedIndicator() {
+      const el = document.getElementById('review-saved-badge');
+      if (!el) return;
+      el.style.opacity = '1';
+      setTimeout(() => { el.style.opacity = '0'; }, 1800);
+    }
+
+    function getTradeKey(dateKey, tradeId) {
+      return `${dateKey}_${tradeId}`;
+    }
+
+    function loadReviewForCurrentTrade() {
+      const db = getReviewsDb();
+      const key = getTradeKey(currentSelectedDate, currentTradeId);
+      const rev = db[key] || { rating: 0, tags: [], comment: '' };
+
+      // Set Stars
+      updateStarDisplay(rev.rating || 0);
+
+      // Set Tags
+      renderReviewTags(rev.tags || []);
+
+      // Set Comment Textarea
+      const txt = document.getElementById('review-comment-textarea');
+      if (txt) {
+        txt.value = rev.comment || '';
+      }
+    }
+
+    function updateStarDisplay(rating) {
+      for (let i = 1; i <= 5; i++) {
+        const starEl = document.getElementById(`star-${i}`);
+        if (!starEl) continue;
+        if (i <= rating) {
+          starEl.className = 'text-lg text-amber-400 transition-colors drop-shadow';
+        } else {
+          starEl.className = 'text-lg text-gray-600 hover:text-amber-300 transition-colors';
+        }
+      }
+      const descEl = document.getElementById('review-rating-desc');
+      if (descEl) {
+        descEl.innerText = RATING_DESCRIPTIONS[rating] || RATING_DESCRIPTIONS[0];
+        descEl.className = rating > 0 ? 'text-[11px] text-amber-400 font-bold ml-1' : 'text-[11px] text-[#8b9bb4] font-medium ml-1';
+      }
+    }
+
+    function hoverReviewRating(val) {
+      for (let i = 1; i <= 5; i++) {
+        const starEl = document.getElementById(`star-${i}`);
+        if (!starEl) continue;
+        starEl.className = i <= val ? 'text-lg text-amber-300 transition-colors' : 'text-lg text-gray-700 transition-colors';
+      }
+    }
+
+    function resetHoverRating() {
+      const db = getReviewsDb();
+      const key = getTradeKey(currentSelectedDate, currentTradeId);
+      const rev = db[key] || { rating: 0 };
+      updateStarDisplay(rev.rating || 0);
+    }
+
+    function setReviewRating(rating) {
+      const db = getReviewsDb();
+      const key = getTradeKey(currentSelectedDate, currentTradeId);
+      if (!db[key]) db[key] = { rating: 0, tags: [], comment: '' };
+      
+      // Clicking same star toggles to 0
+      db[key].rating = (db[key].rating === rating) ? 0 : rating;
+      db[key].updated_at = Date.now();
+      saveReviewsDb(db);
+      updateStarDisplay(db[key].rating);
+
+      // Re-render table in left pane to reflect star indicator in log
+      const dayData = journalDb.days[currentSelectedDate];
+      if (dayData) renderTable(dayData.trades);
+    }
+
+    function renderReviewTags(selectedTags) {
+      const container = document.getElementById('review-tags-box');
+      if (!container) return;
+      container.innerHTML = '';
+
+      DEFAULT_REVIEW_TAGS.forEach(tag => {
+        const isSelected = selectedTags.includes(tag.name);
+        const btn = document.createElement('button');
+        
+        if (isSelected) {
+          btn.className = tag.type === 'pos'
+            ? 'px-2 py-0.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-xs'
+            : 'px-2 py-0.5 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-xs';
+        } else {
+          btn.className = 'px-2 py-0.5 rounded-lg text-xs font-medium bg-[#121824] hover:bg-[#1a2336] text-[#8b9bb4] hover:text-white border border-[#1e2638] transition-all';
+        }
+
+        btn.innerText = tag.name;
+        btn.onclick = () => toggleReviewTag(tag.name);
+        container.appendChild(btn);
+      });
+    }
+
+    function toggleReviewTag(tagName) {
+      const db = getReviewsDb();
+      const key = getTradeKey(currentSelectedDate, currentTradeId);
+      if (!db[key]) db[key] = { rating: 0, tags: [], comment: '' };
+      if (!db[key].tags) db[key].tags = [];
+
+      const idx = db[key].tags.indexOf(tagName);
+      if (idx !== -1) {
+        db[key].tags.splice(idx, 1);
+      } else {
+        db[key].tags.push(tagName);
+      }
+      db[key].updated_at = Date.now();
+      saveReviewsDb(db);
+      renderReviewTags(db[key].tags);
+    }
+
+    let commentTimeout = null;
+    function onCommentChange() {
+      const txt = document.getElementById('review-comment-textarea').value;
+      clearTimeout(commentTimeout);
+      commentTimeout = setTimeout(() => {
+        const db = getReviewsDb();
+        const key = getTradeKey(currentSelectedDate, currentTradeId);
+        if (!db[key]) db[key] = { rating: 0, tags: [], comment: '' };
+        db[key].comment = txt.trim();
+        db[key].updated_at = Date.now();
+        saveReviewsDb(db);
+
+        // Re-render table in left pane to reflect 💬 icon
+        const dayData = journalDb.days[currentSelectedDate];
+        if (dayData) renderTable(dayData.trades);
+      }, 400);
+    }
+
+    function exportReviewsJson() {
+      const db = getReviewsDb();
+      const count = Object.keys(db).length;
+      if (count === 0) {
+        alert('目前瀏覽器中尚未有任何覆盤記錄！請先在訂單下方點擊星星或輸入筆記。');
+        return;
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `trading_reviews_backup_${new Date().toISOString().substring(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
 
     // 1. Navigation View Switcher
     function showView(viewName) {
@@ -854,9 +1109,25 @@
 
         const symColor = t.sym === 'XAUUSD' ? 'text-amber-400' : (t.sym === 'NAS100' ? 'text-indigo-400' : 'text-blue-400');
 
+        // Check if trade has review from localStorage
+        const reviewsDb = getReviewsDb();
+        const revKey = getTradeKey(currentSelectedDate, t.id);
+        const tRev = reviewsDb[revKey];
+        let reviewBadge = '';
+        if (tRev) {
+          if (tRev.rating > 0) {
+            reviewBadge += `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 ml-1">★${tRev.rating}</span>`;
+          }
+          if (tRev.comment && tRev.comment.length > 0) {
+            reviewBadge += `<span class="text-blue-400 text-xs ml-0.5" title="${tRev.comment.replace(/"/g, '&quot;')}">💬</span>`;
+          }
+        }
+
         // Clean & Larger Typography: text-xs and text-sm
         tr.innerHTML = `
-          <td class="py-3 px-3 text-[#8b9bb4] font-bold text-xs">${t.id}</td>
+          <td class="py-3 px-3 text-[#8b9bb4] font-bold text-xs">
+            <span class="inline-flex items-center">${t.id}${reviewBadge}</span>
+          </td>
           <td class="py-3 px-2 font-sans text-white text-xs font-medium">${t.in_time.substr(0,5)}</td>
           <td class="py-3 px-2 font-extrabold ${symColor} text-xs">${t.sym}</td>
           <td class="py-3 px-2 font-sans">${sideBadge}</td>
@@ -905,6 +1176,7 @@
       `;
 
       renderViewport();
+      loadReviewForCurrentTrade();
     }
 
     // 9. Timeframe Switcher
@@ -1117,6 +1389,9 @@
     renderMonthlyOverview();
     renderDateSelectorPills();
     loadDate('2026-11-19');
+  
+    
+
   </script>
 </body>
 </html>
