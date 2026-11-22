@@ -569,7 +569,27 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             最新交易日
           </button>
 
-          <div id="date-dropdown-menu" class="hidden absolute right-0 top-11 w-64 max-h-72 overflow-y-auto custom-scrollbar bg-[#121824] border border-[#2b354d] rounded-xl shadow-2xl p-1.5 z-50 space-y-0.5">
+          <!-- Mini Calendar Date Picker Popover -->
+          <div id="date-dropdown-menu" class="hidden absolute right-0 top-11 w-[280px] bg-[#121824] border border-[#2b354d] rounded-2xl shadow-2xl p-3.5 z-50 select-none">
+            <div class="flex items-center justify-between mb-3">
+              <button onclick="stepMiniCalMonth(-1); event.stopPropagation();" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#8b9bb4] hover:text-white hover:bg-[#1e2638] transition-all" title="上一個月">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              <span id="mini-cal-title" class="text-sm font-bold text-white tracking-tight">November 2026</span>
+              <button onclick="stepMiniCalMonth(1); event.stopPropagation();" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#8b9bb4] hover:text-white hover:bg-[#1e2638] transition-all" title="下一個月">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+            <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-[#8b9bb4] mb-1.5">
+              <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+            </div>
+            <div id="mini-cal-grid" class="grid grid-cols-7 gap-1 text-center font-mono text-xs">
+            </div>
+            <div class="mt-3 pt-2 border-t border-[#1e2638] flex items-center justify-between text-[10px] text-[#8b9bb4]">
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-0.5 bg-emerald-400 rounded"></span> 盈利日</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-0.5 bg-rose-400 rounded"></span> 虧損日</span>
+              <button onclick="jumpToLatestDate(); toggleDateDropdown(false);" class="text-blue-400 hover:underline font-sans font-semibold">最新交易日</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1433,9 +1453,79 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    function toggleDateDropdown() {
+    let miniCalMonth = currentSelectedDate ? currentSelectedDate.substring(0, 7) : DEFAULT_MONTH;
+
+    function toggleDateDropdown(forceState) {
       const menu = document.getElementById('date-dropdown-menu');
-      if (menu) menu.classList.toggle('hidden');
+      if (!menu) return;
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : menu.classList.contains('hidden');
+      if (shouldOpen) {
+        miniCalMonth = currentSelectedDate ? currentSelectedDate.substring(0, 7) : DEFAULT_MONTH;
+        renderMiniCalendar();
+        menu.classList.remove('hidden');
+      } else {
+        menu.classList.add('hidden');
+      }
+    }
+
+    function stepMiniCalMonth(delta) {
+      const [y, m] = miniCalMonth.split('-').map(Number);
+      const d = new Date(y, m - 1 + delta, 1);
+      miniCalMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      renderMiniCalendar();
+    }
+
+    function renderMiniCalendar() {
+      const titleEl = document.getElementById('mini-cal-title');
+      const grid = document.getElementById('mini-cal-grid');
+      if (!grid) return;
+
+      const [yStr, mStr] = miniCalMonth.split('-');
+      const y = parseInt(yStr, 10);
+      const m = parseInt(mStr, 10);
+      if (titleEl) titleEl.innerText = `${MONTH_NAMES_EN[m - 1]} ${y}`;
+
+      grid.innerHTML = '';
+      const firstDay = new Date(y, m - 1, 1).getDay();
+      const daysInMonth = new Date(y, m, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        grid.appendChild(document.createElement('div'));
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dKey = `${miniCalMonth}-${String(day).padStart(2, '0')}`;
+        const d = journalDb.days[dKey];
+        const isSelected = dKey === currentSelectedDate;
+
+        const btn = document.createElement('button');
+        if (d) {
+          const isWin = d.is_win;
+          const pnlStr = isWin ? `+$${d.net_pnl.toFixed(2)}` : `-$${Math.abs(d.net_pnl).toFixed(2)}`;
+          btn.title = `${dKey} (${d.day_of_week}) · ${pnlStr} · ${d.trades_count}單 · 勝率 ${d.win_rate}%`;
+          const baseColor = isWin
+            ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400'
+            : 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-400';
+          const barColor = isWin ? 'bg-emerald-400' : 'bg-rose-400';
+          const ringClass = isSelected ? 'ring-2 ring-blue-400 font-extrabold' : 'font-bold';
+
+          btn.className = `relative h-8 rounded-lg flex flex-col items-center justify-center transition-all cursor-pointer ${baseColor} ${ringClass}`;
+          btn.innerHTML = `
+            <span class="leading-none">${day}</span>
+            <span class="w-4 h-[2.5px] rounded-full ${barColor} mt-0.5"></span>
+          `;
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            toggleDateDropdown(false);
+            loadDate(dKey);
+          };
+        } else {
+          btn.disabled = true;
+          btn.className = 'h-8 rounded-lg flex items-center justify-center text-[#4b5563] cursor-default';
+          btn.innerText = day;
+        }
+        grid.appendChild(btn);
+      }
     }
 
     document.addEventListener('click', (e) => {
@@ -1469,25 +1559,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         latestBtn.className = isLatest
           ? 'px-3 py-1.5 rounded-xl bg-[#1e2638] text-white text-xs font-semibold border border-blue-500/40 transition-all flex-shrink-0'
           : 'px-3 py-1.5 rounded-xl bg-[#121824] hover:bg-[#1e2638] text-[#8b9bb4] hover:text-white text-xs font-semibold border border-[#1e2638] transition-all flex-shrink-0';
-      }
-
-      const menu = document.getElementById('date-dropdown-menu');
-      if (menu) {
-        menu.innerHTML = '';
-        allDatesSorted.slice().reverse().forEach(dKey => {
-          const d = journalDb.days[dKey];
-          const item = document.createElement('button');
-          const isActive = dKey === currentSelectedDate;
-          const pnlStr = d.is_win ? `+$${d.net_pnl.toFixed(2)}` : `-$${Math.abs(d.net_pnl).toFixed(2)}`;
-          const pnlColor = d.is_win ? 'text-emerald-400' : 'text-rose-400';
-          item.className = `w-full px-2.5 py-1.5 rounded-lg text-xs font-mono flex items-center justify-between transition-all ${isActive ? 'bg-blue-500/20 text-white border border-blue-500/30 font-bold' : 'text-gray-300 hover:bg-[#1e2638]'}`;
-          item.innerHTML = `<span>${dKey} <span class="text-[#8b9bb4]">(${d.day_of_week})</span></span><span class="font-bold ${pnlColor}">${pnlStr}</span>`;
-          item.onclick = () => {
-            menu.classList.add('hidden');
-            loadDate(dKey);
-          };
-          menu.appendChild(item);
-        });
       }
     }
 
