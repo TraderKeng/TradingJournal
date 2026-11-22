@@ -416,6 +416,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <!-- Dynamically populated via JS -->
       </div>
 
+      <!-- 1.5 DAILY NET CUMULATIVE P&L CURVE -->
+      <div class="bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm space-y-2.5 flex-shrink-0">
+        <div class="flex items-center justify-between border-b border-[#1e2638] pb-2">
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm font-bold text-white">Daily net cumulative P&amp;L</h2>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#0b0e14] text-[#8b9bb4] border border-[#1e2638]" title="每日累計淨盈虧曲線（已扣估算手續費）">累計淨值曲線</span>
+          </div>
+          <span id="cum-pnl-badge" class="text-xs font-mono font-extrabold text-emerald-400">+$0.00</span>
+        </div>
+        <div id="cumulative-pnl-chart" class="relative w-full h-[210px] rounded-xl bg-[#0b0e14] border border-[#1e2638] overflow-hidden">
+          <!-- Rendered dynamically via SVG -->
+        </div>
+      </div>
+
       <!-- 2. MONTHLY SESSION BREAKDOWN BLOCK -->
       <div class="bg-[#121824] border border-[#1e2638] rounded-2xl p-4 shadow-sm space-y-3 flex-shrink-0">
         <div class="flex items-center justify-between border-b border-[#1e2638] pb-2.5">
@@ -466,17 +480,30 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <!-- RIGHT COLUMN: PINNED TRADING CALENDAR -->
     <div class="flex-1 flex flex-col min-w-0 bg-[#121824] border border-[#1e2638] rounded-2xl p-4 sm:p-5 shadow-sm overflow-y-auto">
 
-      <!-- Calendar Header -->
+      <!-- Calendar Header (Arrow Month Stepper) -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-[#1e2638] gap-3 flex-shrink-0">
         <div class="flex items-center gap-2.5 flex-wrap">
-          <h2 id="calendar-month-title" class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-            <span>📅 2026 年 11 月交易日曆 (Trading Calendar)</span>
-          </h2>
-          <!-- Month Selector Pills -->
-          <div id="month-switcher-container" class="flex items-center gap-1 bg-[#0b0e14] p-1 rounded-xl border border-[#1e2638] text-xs font-semibold">
-            <!-- Populated dynamically via JS -->
+          <div class="inline-flex items-center gap-1 bg-[#0b0e14] px-1.5 py-1 rounded-xl border border-[#1e2638]">
+            <button onclick="stepCalendarMonth(-1)" id="btn-cal-prev" title="上一個月" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#8b9bb4] hover:text-white hover:bg-[#1e2638] transition-all">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+            </button>
+            <span id="calendar-month-title" class="min-w-[142px] text-center text-sm sm:text-base font-bold text-white tracking-tight select-none px-1">
+              November 2026
+            </span>
+            <button onclick="stepCalendarMonth(1)" id="btn-cal-next" title="下一個月" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#8b9bb4] hover:text-white hover:bg-[#1e2638] transition-all">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            </button>
           </div>
+
+          <button onclick="jumpToCurrentMonth()" id="btn-this-month" class="px-3 py-1.5 rounded-xl bg-[#1e2638] hover:bg-[#2b354d] text-white text-xs font-semibold border border-[#2b354d] transition-all">
+            This month
+          </button>
+
+          <button onclick="toggleAllOverview()" id="btn-scope-all" class="px-2.5 py-1.5 rounded-xl bg-[#0b0e14] hover:bg-[#1e2638] text-[#8b9bb4] hover:text-white text-xs font-semibold border border-[#1e2638] transition-all">
+            全部統計
+          </button>
         </div>
+
         <div class="flex items-center gap-3 text-xs">
           <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> 盈利日 (Win)</span>
           <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> 虧損日 (Loss)</span>
@@ -522,9 +549,28 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           </div>
         </div>
 
-        <!-- Quick Date Switcher Pills -->
-        <div id="quick-date-selector" class="flex items-center gap-1.5 text-xs overflow-x-auto max-w-2xl py-1 custom-scrollbar">
-          <!-- Populated dynamically via JS -->
+        <!-- Arrow Date Stepper -->
+        <div class="relative flex items-center gap-2">
+          <div class="inline-flex items-center gap-1 bg-[#121824] px-1.5 py-1 rounded-xl border border-[#1e2638]">
+            <button onclick="stepTradingDate(-1)" id="btn-date-prev" title="上一個交易日" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#8b9bb4] hover:text-white hover:bg-[#1e2638] disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+            </button>
+            <button onclick="toggleDateDropdown()" id="btn-date-center" title="點擊展開所有交易日快速跳轉" class="min-w-[195px] px-2.5 py-1 rounded-lg hover:bg-[#1e2638]/70 text-xs sm:text-sm font-bold text-white font-mono flex items-center justify-center gap-1.5 transition-all">
+              <span id="date-stepper-label">2026-11-20</span>
+              <span id="date-stepper-pnl" class="text-xs font-extrabold text-emerald-400">+$0.00</span>
+              <svg class="w-3 h-3 text-[#8b9bb4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <button onclick="stepTradingDate(1)" id="btn-date-next" title="下一個交易日" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#8b9bb4] hover:text-white hover:bg-[#1e2638] disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+            </button>
+          </div>
+
+          <button onclick="jumpToLatestDate()" id="btn-latest-date" class="px-3 py-1.5 rounded-xl bg-[#1e2638] hover:bg-[#2b354d] text-white text-xs font-semibold border border-[#2b354d] transition-all flex-shrink-0">
+            最新交易日
+          </button>
+
+          <div id="date-dropdown-menu" class="hidden absolute right-0 top-11 w-64 max-h-72 overflow-y-auto custom-scrollbar bg-[#121824] border border-[#2b354d] rounded-xl shadow-2xl p-1.5 z-50 space-y-0.5">
+          </div>
         </div>
       </div>
 
@@ -699,7 +745,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     let currentTradeId = 1;
     let currentTf = '1m';
     let currentCalendarMonth = journalDb.summary.month || (currentSelectedDate ? currentSelectedDate.substring(0, 7) : '2026-11');
-    let currentOverviewScope = 'all'; // 'all' or specific 'YYYY-MM'
+    let currentOverviewScope = currentCalendarMonth; // default to current month
 
     // Filter states
     let selectedSymbols = new Set();
@@ -895,45 +941,46 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    function selectCalendarMonth(monthKey) {
-      currentCalendarMonth = monthKey;
-      currentOverviewScope = monthKey;
+    const MONTH_NAMES_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const DEFAULT_MONTH = journalDb.summary.month || '2026-11';
+
+    function stepCalendarMonth(delta) {
+      const [y, m] = currentCalendarMonth.split('-').map(Number);
+      const d = new Date(y, m - 1 + delta, 1);
+      const ny = d.getFullYear();
+      const nm = String(d.getMonth() + 1).padStart(2, '0');
+      currentCalendarMonth = `${ny}-${nm}`;
+      currentOverviewScope = currentCalendarMonth;
       renderMonthSwitcher();
       renderMonthlyOverview();
     }
 
-    function selectAllOverview() {
-      currentOverviewScope = 'all';
+    function jumpToCurrentMonth() {
+      currentCalendarMonth = DEFAULT_MONTH;
+      currentOverviewScope = DEFAULT_MONTH;
+      renderMonthSwitcher();
+      renderMonthlyOverview();
+    }
+
+    function toggleAllOverview() {
+      currentOverviewScope = (currentOverviewScope === 'all') ? currentCalendarMonth : 'all';
       renderMonthSwitcher();
       renderMonthlyOverview();
     }
 
     function renderMonthSwitcher() {
-      const container = document.getElementById('month-switcher-container');
-      if (!container) return;
-      container.innerHTML = '';
-
-      const months = journalDb.summary.months || [currentCalendarMonth];
-      months.forEach(m => {
-        const [y, mo] = m.split('-');
-        const isActive = currentOverviewScope === m;
-        const btn = document.createElement('button');
-        btn.className = isActive
-          ? 'px-2.5 py-1 rounded-lg bg-[#1e2638] text-white shadow-sm transition-all'
-          : 'px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white transition-all';
-        btn.innerText = `${y}/${mo}`;
-        btn.onclick = () => selectCalendarMonth(m);
-        container.appendChild(btn);
-      });
-
-      if (months.length > 1) {
-        const allBtn = document.createElement('button');
-        allBtn.className = currentOverviewScope === 'all'
-          ? 'px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-sm transition-all'
-          : 'px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white transition-all';
-        allBtn.innerText = '全部統計';
-        allBtn.onclick = () => selectAllOverview();
-        container.appendChild(allBtn);
+      const btnThis = document.getElementById('btn-this-month');
+      const btnAll = document.getElementById('btn-scope-all');
+      if (btnThis) {
+        const isDefault = currentCalendarMonth === DEFAULT_MONTH && currentOverviewScope !== 'all';
+        btnThis.className = isDefault
+          ? 'px-3 py-1.5 rounded-xl bg-[#1e2638] text-white text-xs font-semibold border border-blue-500/40 transition-all'
+          : 'px-3 py-1.5 rounded-xl bg-[#0b0e14] hover:bg-[#1e2638] text-[#8b9bb4] hover:text-white text-xs font-semibold border border-[#1e2638] transition-all';
+      }
+      if (btnAll) {
+        btnAll.className = currentOverviewScope === 'all'
+          ? 'px-2.5 py-1.5 rounded-xl bg-blue-500/20 text-blue-400 text-xs font-semibold border border-blue-500/40 transition-all'
+          : 'px-2.5 py-1.5 rounded-xl bg-[#0b0e14] hover:bg-[#1e2638] text-[#8b9bb4] hover:text-white text-xs font-semibold border border-[#1e2638] transition-all';
       }
     }
 
@@ -1146,8 +1193,161 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         symbolsContainer.appendChild(symCard);
       });
 
-      // 4. Calendar Grid
+      // 4. Daily Net Cumulative P&L Curve
+      renderCumulativePnlChart();
+
+      // 5. Calendar Grid
       renderCalendar();
+    }
+
+    function renderCumulativePnlChart() {
+      const container = document.getElementById('cumulative-pnl-chart');
+      const badge = document.getElementById('cum-pnl-badge');
+      if (!container) return;
+
+      const filteredDays = Object.values(journalDb.days)
+        .filter(d => currentOverviewScope === 'all' || d.date.startsWith(currentOverviewScope))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      if (filteredDays.length === 0) {
+        if (badge) {
+          badge.innerText = '$0.00';
+          badge.className = 'text-xs font-mono font-extrabold text-[#8b9bb4]';
+        }
+        container.innerHTML = `<div class="w-full h-full flex items-center justify-center text-xs text-[#8b9bb4]">該時段暫無交易數據</div>`;
+        return;
+      }
+
+      const points = [{ date: 'Start', daily: 0, cum: 0, isOrigin: true }];
+      let running = 0;
+      filteredDays.forEach(d => {
+        running = Math.round((running + d.net_pnl) * 100) / 100;
+        points.push({ date: d.date, daily: d.net_pnl, cum: running, isOrigin: false });
+      });
+
+      const finalCum = points[points.length - 1].cum;
+      if (badge) {
+        badge.innerText = `${finalCum >= 0 ? '+' : '-'}$${Math.abs(finalCum).toFixed(2)}`;
+        badge.className = `text-xs font-mono font-extrabold ${finalCum >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+      }
+
+      const W = 460;
+      const H = 210;
+      const padL = 56;
+      const padR = 16;
+      const padT = 18;
+      const padB = 30;
+      const cw = W - padL - padR;
+      const ch = H - padT - padB;
+
+      let minVal = Math.min(0, ...points.map(p => p.cum));
+      let maxVal = Math.max(0, ...points.map(p => p.cum));
+      if (maxVal === minVal) { maxVal += 100; minVal -= 100; }
+      const rangePad = (maxVal - minVal) * 0.12;
+      minVal -= rangePad;
+      maxVal += rangePad;
+
+      const rawStep = (maxVal - minVal) / 4;
+      const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+      const norm = rawStep / mag;
+      const niceMult = norm <= 1 ? 1 : (norm <= 2 ? 2 : (norm <= 5 ? 5 : 10));
+      const step = niceMult * mag;
+      const yMin = Math.floor(minVal / step) * step;
+      const yMax = Math.ceil(maxVal / step) * step;
+
+      const xAt = (i) => padL + (i / Math.max(points.length - 1, 1)) * cw;
+      const yAt = (v) => padT + ch - ((v - yMin) / Math.max(yMax - yMin, 1)) * ch;
+      const yZero = yAt(0);
+
+      const coords = points.map((p, i) => ({ ...p, x: xAt(i), y: yAt(p.cum) }));
+      const linePath = coords.map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+      const areaPath = `${linePath} L${coords[coords.length - 1].x.toFixed(1)},${yZero.toFixed(1)} L${coords[0].x.toFixed(1)},${yZero.toFixed(1)} Z`;
+
+      let svgParts = [];
+      svgParts.push(`<svg viewBox="0 0 ${W} ${H}" class="w-full h-full select-none">`);
+      svgParts.push(`
+        <defs>
+          <linearGradient id="cumGreenGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.02"/>
+          </linearGradient>
+          <linearGradient id="cumRedGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.48"/>
+            <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.03"/>
+          </linearGradient>
+          <clipPath id="clipAboveZero">
+            <rect x="${padL}" y="${padT}" width="${cw}" height="${Math.max(0, yZero - padT).toFixed(1)}"/>
+          </clipPath>
+          <clipPath id="clipBelowZero">
+            <rect x="${padL}" y="${yZero.toFixed(1)}" width="${cw}" height="${Math.max(0, padT + ch - yZero).toFixed(1)}"/>
+          </clipPath>
+        </defs>
+      `);
+
+      for (let v = yMin; v <= yMax + step * 0.01; v += step) {
+        const y = yAt(v);
+        if (y < padT - 2 || y > padT + ch + 2) continue;
+        const isZero = Math.abs(v) < 1e-6;
+        const label = v < 0 ? `-$${Math.abs(Math.round(v)).toLocaleString()}` : `$${Math.round(v).toLocaleString()}`;
+        svgParts.push(`<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="${isZero ? '#334155' : '#1e2638'}" stroke-width="${isZero ? '1.2' : '1'}" stroke-dasharray="${isZero ? '0' : '3 3'}"/>`);
+        svgParts.push(`<text x="${padL - 8}" y="${(y + 3.5).toFixed(1)}" fill="${isZero ? '#cbd5e1' : '#8b9bb4'}" font-size="10" font-family="monospace" text-anchor="end">${label}</text>`);
+      }
+
+      svgParts.push(`<path d="${areaPath}" fill="url(#cumGreenGrad)" clip-path="url(#clipAboveZero)"/>`);
+      svgParts.push(`<path d="${areaPath}" fill="url(#cumRedGrad)" clip-path="url(#clipBelowZero)"/>`);
+      svgParts.push(`<path d="${linePath}" fill="none" stroke="#818cf8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`);
+
+      const dataCoords = coords.slice(1);
+      const tickCount = Math.min(4, dataCoords.length);
+      const tickIndices = new Set();
+      if (tickCount === 1) {
+        tickIndices.add(0);
+      } else {
+        for (let k = 0; k < tickCount; k++) {
+          tickIndices.add(Math.round(k * (dataCoords.length - 1) / (tickCount - 1)));
+        }
+      }
+      tickIndices.forEach(idx => {
+        const c = dataCoords[idx];
+        const parts = c.date.split('-');
+        const shortLabel = `${parts[1]}/${parts[2]}`;
+        svgParts.push(`<text x="${c.x.toFixed(1)}" y="${H - 9}" fill="#8b9bb4" font-size="10" font-family="monospace" text-anchor="middle">${shortLabel}</text>`);
+      });
+
+      dataCoords.forEach((c) => {
+        const dotColor = c.cum >= 0 ? '#10b981' : '#f43f5e';
+        const dSign = c.daily >= 0 ? '+' : '-';
+        const cSign = c.cum >= 0 ? '+' : '-';
+        svgParts.push(`
+          <g class="cum-pt-group" style="cursor:pointer;"
+             onmouseenter="showCumTooltip(event, '${c.date}', '${dSign}$${Math.abs(c.daily).toFixed(2)}', '${cSign}$${Math.abs(c.cum).toFixed(2)}', ${c.daily >= 0}, ${c.cum >= 0})"
+             onmouseleave="hideCumTooltip()"
+             onclick="loadDate('${c.date}'); showView('daily');">
+            <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="8" fill="transparent"/>
+            <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="2.8" fill="${dotColor}" stroke="#0b0e14" stroke-width="1"/>
+          </g>
+        `);
+      });
+
+      svgParts.push(`</svg>`);
+      svgParts.push(`<div id="cum-tooltip" class="hidden pointer-events-none absolute top-2 left-2 bg-[#121824]/95 border border-[#2b354d] rounded-lg px-2.5 py-1.5 text-[11px] font-mono shadow-xl z-20"></div>`);
+      container.innerHTML = svgParts.join('');
+    }
+
+    function showCumTooltip(evt, dateStr, dailyStr, cumStr, isDailyWin, isCumWin) {
+      const tip = document.getElementById('cum-tooltip');
+      if (!tip) return;
+      tip.innerHTML = `
+        <div class="text-white font-bold">${dateStr}</div>
+        <div class="text-[#8b9bb4]">單日: <span class="${isDailyWin ? 'text-emerald-400' : 'text-rose-400'} font-bold">${dailyStr}</span></div>
+        <div class="text-[#8b9bb4]">累計: <span class="${isCumWin ? 'text-emerald-400' : 'text-rose-400'} font-bold">${cumStr}</span></div>
+      `;
+      tip.classList.remove('hidden');
+    }
+
+    function hideCumTooltip() {
+      const tip = document.getElementById('cum-tooltip');
+      if (tip) tip.classList.add('hidden');
     }
 
     function renderCalendar() {
@@ -1157,7 +1357,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const [yearStr, monthStr] = currentCalendarMonth.split('-');
       const year = parseInt(yearStr, 10);
       const month = parseInt(monthStr, 10);
-      document.getElementById('calendar-month-title').innerHTML = `<span>📅 ${year} 年 ${month} 月交易日曆 (Trading Calendar)</span>`;
+      document.getElementById('calendar-month-title').innerText = `${MONTH_NAMES_EN[month - 1]} ${year}`;
 
       const firstWeekday = new Date(year, month - 1, 1).getDay(); // 0=Sun..6=Sat
       const daysInMonth = new Date(year, month, 0).getDate();
@@ -1183,17 +1383,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             : 'bg-rose-500/10 border-rose-500/40 hover:bg-rose-500/20 text-rose-400';
           const pnlText = isWin ? `+$${dayData.net_pnl.toFixed(2)}` : `-$${Math.abs(dayData.net_pnl).toFixed(2)}`;
 
-          // Per-symbol mini breakdown (MGC / MNQ)
-          const symParts = [];
-          ['MNQ', 'MGC'].forEach(s => {
-            const st = dayData.trades.filter(t => t.sym === s);
-            if (st.length > 0) {
-              const sp = st.reduce((acc, t) => acc + t.pnl, 0);
-              symParts.push(`${s} ${sp >= 0 ? '+' : '-'}$${Math.abs(sp).toFixed(0)}`);
-            }
-          });
-          const symSummaryText = symParts.join(' · ');
-
           cell.className = `cal-cell active-day p-3 rounded-xl border flex flex-col justify-between ${bgClass}`;
           cell.onclick = () => {
             loadDate(dateKey);
@@ -1203,15 +1392,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           cell.innerHTML = `
             <div class="flex items-center justify-between">
               <span class="font-extrabold text-sm text-white">${day}</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded font-sans font-bold bg-[#121824] border border-current">${dayData.trades_count}單</span>
             </div>
-            <div class="my-1.5">
+            <div class="my-1.5 space-y-0.5">
               <span class="text-base font-extrabold block font-mono tracking-tight">${pnlText}</span>
-              <span class="text-[10px] text-gray-300 font-sans block mt-0.5 truncate">${symSummaryText}</span>
+              <span class="text-[11px] text-gray-200 font-sans font-semibold block">勝率 ${dayData.win_rate}%</span>
+              <span class="text-[11px] text-gray-200 font-sans font-semibold block">${dayData.trades_count} 單</span>
             </div>
-            <div class="text-[10px] text-[#8b9bb4] font-sans flex items-center justify-between pt-1 border-t border-current/20">
-              <span>勝率 ${dayData.win_rate}%</span>
-              <span class="text-blue-400 underline">查看覆盤 ➔</span>
+            <div class="text-[10px] text-[#8b9bb4] font-sans flex items-center justify-between gap-1 pt-1 border-t border-current/20 whitespace-nowrap">
+              <span>${dayData.win_count}勝 ${dayData.loss_count}負</span>
+              <span class="text-blue-400 underline">覆盤 ➔</span>
             </div>
           `;
         } else {
@@ -1229,35 +1418,77 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     // ==========================================
     // 4. DAILY DETAIL VIEW
     // ==========================================
+    function stepTradingDate(delta) {
+      const idx = allDatesSorted.indexOf(currentSelectedDate);
+      if (idx === -1) return;
+      const nextIdx = idx + delta;
+      if (nextIdx >= 0 && nextIdx < allDatesSorted.length) {
+        loadDate(allDatesSorted[nextIdx]);
+      }
+    }
+
+    function jumpToLatestDate() {
+      if (allDatesSorted.length > 0) {
+        loadDate(allDatesSorted[allDatesSorted.length - 1]);
+      }
+    }
+
+    function toggleDateDropdown() {
+      const menu = document.getElementById('date-dropdown-menu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('date-dropdown-menu');
+      const btn = document.getElementById('btn-date-center');
+      if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+
     function renderDateSelectorPills() {
-      const container = document.getElementById('quick-date-selector');
-      if (!container) return;
-      container.innerHTML = '';
+      const idx = allDatesSorted.indexOf(currentSelectedDate);
+      const dayData = journalDb.days[currentSelectedDate];
+      if (!dayData) return;
 
-      const dates = Object.keys(journalDb.days).sort();
-      dates.forEach(dKey => {
-        const d = journalDb.days[dKey];
-        const btn = document.createElement('button');
-        btn.id = `btn-date-${dKey}`;
-        btn.onclick = () => loadDate(dKey);
+      const labelEl = document.getElementById('date-stepper-label');
+      const pnlEl = document.getElementById('date-stepper-pnl');
+      const prevBtn = document.getElementById('btn-date-prev');
+      const nextBtn = document.getElementById('btn-date-next');
+      const latestBtn = document.getElementById('btn-latest-date');
 
-        const shortDate = dKey.substring(5);
-        const pnlStr = d.is_win ? `+$${d.net_pnl.toFixed(0)}` : `-$${Math.abs(d.net_pnl).toFixed(0)}`;
-        const isActive = dKey === currentSelectedDate;
+      if (labelEl) labelEl.innerText = `${currentSelectedDate} (${dayData.day_of_week})`;
+      if (pnlEl) {
+        pnlEl.innerText = dayData.is_win ? `+$${dayData.net_pnl.toFixed(0)}` : `-$${Math.abs(dayData.net_pnl).toFixed(0)}`;
+        pnlEl.className = dayData.is_win ? 'text-xs font-extrabold text-emerald-400' : 'text-xs font-extrabold text-rose-400';
+      }
+      if (prevBtn) prevBtn.disabled = (idx <= 0);
+      if (nextBtn) nextBtn.disabled = (idx >= allDatesSorted.length - 1);
+      if (latestBtn) {
+        const isLatest = idx === allDatesSorted.length - 1;
+        latestBtn.className = isLatest
+          ? 'px-3 py-1.5 rounded-xl bg-[#1e2638] text-white text-xs font-semibold border border-blue-500/40 transition-all flex-shrink-0'
+          : 'px-3 py-1.5 rounded-xl bg-[#121824] hover:bg-[#1e2638] text-[#8b9bb4] hover:text-white text-xs font-semibold border border-[#1e2638] transition-all flex-shrink-0';
+      }
 
-        if (isActive) {
-          btn.className = d.is_win
-            ? "date-select-btn px-2.5 py-1 rounded-lg bg-[#1e2638] text-emerald-400 font-bold border border-emerald-500/40 flex-shrink-0"
-            : "date-select-btn px-2.5 py-1 rounded-lg bg-[#1e2638] text-rose-400 font-bold border border-rose-500/40 flex-shrink-0";
-        } else {
-          btn.className = d.is_win
-            ? "date-select-btn px-2.5 py-1 rounded-lg bg-[#121824] text-emerald-400/80 hover:text-emerald-400 border border-[#1e2638] flex-shrink-0"
-            : "date-select-btn px-2.5 py-1 rounded-lg bg-[#121824] text-[#8b9bb4] hover:text-white border border-[#1e2638] flex-shrink-0";
-        }
-
-        btn.innerText = `${shortDate} (${pnlStr})`;
-        container.appendChild(btn);
-      });
+      const menu = document.getElementById('date-dropdown-menu');
+      if (menu) {
+        menu.innerHTML = '';
+        allDatesSorted.slice().reverse().forEach(dKey => {
+          const d = journalDb.days[dKey];
+          const item = document.createElement('button');
+          const isActive = dKey === currentSelectedDate;
+          const pnlStr = d.is_win ? `+$${d.net_pnl.toFixed(2)}` : `-$${Math.abs(d.net_pnl).toFixed(2)}`;
+          const pnlColor = d.is_win ? 'text-emerald-400' : 'text-rose-400';
+          item.className = `w-full px-2.5 py-1.5 rounded-lg text-xs font-mono flex items-center justify-between transition-all ${isActive ? 'bg-blue-500/20 text-white border border-blue-500/30 font-bold' : 'text-gray-300 hover:bg-[#1e2638]'}`;
+          item.innerHTML = `<span>${dKey} <span class="text-[#8b9bb4]">(${d.day_of_week})</span></span><span class="font-bold ${pnlColor}">${pnlStr}</span>`;
+          item.onclick = () => {
+            menu.classList.add('hidden');
+            loadDate(dKey);
+          };
+          menu.appendChild(item);
+        });
+      }
     }
 
     function loadDate(dateKey) {
