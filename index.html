@@ -101,16 +101,24 @@
       </div>
     </div>
 
-    <!-- Navigation Switcher -->
-    <div class="flex items-center gap-1.5 bg-[#121824] p-1 rounded-xl border border-[#1e2638] text-xs font-semibold">
-      <button onclick="showView('calendar')" id="nav-btn-cal" class="px-3 py-1.5 rounded-lg bg-[#1e2638] text-white shadow-sm flex items-center gap-1.5 transition-all">
-        <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        日曆月視圖 (Calendar)
-      </button>
-      <button onclick="showView('daily')" id="nav-btn-daily" class="px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white flex items-center gap-1.5 transition-all">
-        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        單日詳細覆盤 (Daily Detail)
-      </button>
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Platform Switcher (cTrader <-> Tradovate) -->
+      <div class="flex items-center gap-1 bg-[#121824] p-1 rounded-xl border border-[#1e2638] text-xs font-semibold">
+        <span class="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm">cTrader</span>
+        <a href="./tradovate/index.html" class="px-2.5 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white transition-all">Tradovate</a>
+      </div>
+
+      <!-- Navigation Switcher -->
+      <div class="flex items-center gap-1.5 bg-[#121824] p-1 rounded-xl border border-[#1e2638] text-xs font-semibold">
+        <button onclick="showView('calendar')" id="nav-btn-cal" class="px-3 py-1.5 rounded-lg bg-[#1e2638] text-white shadow-sm flex items-center gap-1.5 transition-all">
+          <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          日曆月視圖 (Calendar)
+        </button>
+        <button onclick="showView('daily')" id="nav-btn-daily" class="px-3 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white flex items-center gap-1.5 transition-all">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          單日詳細覆盤 (Daily Detail)
+        </button>
+      </div>
     </div>
   </header>
 
