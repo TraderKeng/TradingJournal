@@ -21,6 +21,7 @@ OUT_DIR = os.path.join(REPO_DIR, "tradovate")
 BARS_CACHE_PATH = os.path.join(OUT_DIR, "bars_cache.json")
 DATA_JSON_PATH = os.path.join(OUT_DIR, "data_tradovate.json")
 HTML_OUT_PATH = os.path.join(OUT_DIR, "index.html")
+PLANS_INDEX_PATH = os.path.join(REPO_DIR, "plans", "plans_index.json")
 
 HKT = timezone(timedelta(hours=8))
 NY_TZ = ZoneInfo("America/New_York")
@@ -681,17 +682,28 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             <p id="viewer-trade-subtitle" class="text-[11px] text-[#8b9bb4] mt-0.5 truncate">--</p>
           </div>
 
-          <!-- Timeframe Selector Buttons -->
-          <div class="flex items-center gap-1 p-1 bg-[#0b0e14] rounded-xl border border-[#1e2638] text-xs font-medium flex-shrink-0">
-            <button onclick="switchActiveTf('1m')" id="btn-tf-1m" class="tf-btn px-2.5 py-1 rounded-lg bg-[#1e2638] text-blue-400 font-bold shadow-xs">1m 微觀</button>
-            <button onclick="switchActiveTf('5m')" id="btn-tf-5m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">5m 波段</button>
-            <button onclick="switchActiveTf('15m')" id="btn-tf-15m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">15m 結構</button>
-            <button onclick="switchActiveTf('all')" id="btn-tf-all" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">三圖並列</button>
+          <!-- Right Panel Controls: Plan Overlay + Timeframe / Plan Tab -->
+          <div class="flex items-center gap-1.5 flex-wrap flex-shrink-0">
+            <button onclick="togglePlanLevels()" id="btn-toggle-levels" class="px-2.5 py-1.5 rounded-xl bg-purple-500/15 text-purple-300 border border-purple-500/35 text-xs font-bold flex items-center gap-1 transition-all" title="喺 K 線圖疊加開市前計劃嘅支持阻力位">
+              <span>📐 計劃價位</span>
+              <span id="levels-state-dot" class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+            </button>
+
+            <div class="flex items-center gap-1 p-1 bg-[#0b0e14] rounded-xl border border-[#1e2638] text-xs font-medium">
+              <button onclick="switchActiveTf('1m')" id="btn-tf-1m" class="tf-btn px-2.5 py-1 rounded-lg bg-[#1e2638] text-blue-400 font-bold shadow-xs">1m</button>
+              <button onclick="switchActiveTf('5m')" id="btn-tf-5m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">5m</button>
+              <button onclick="switchActiveTf('15m')" id="btn-tf-15m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">15m</button>
+              <button onclick="switchActiveTf('all')" id="btn-tf-all" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">三圖</button>
+              <div class="w-px h-4 bg-[#1e2638] mx-0.5"></div>
+              <button onclick="switchActiveTf('plan')" id="btn-tf-plan" class="tf-btn px-2.5 py-1 rounded-lg text-purple-300 hover:bg-purple-500/15 font-bold flex items-center gap-1 transition-all">
+                <span>📐 計劃</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Fixed SVG Chart Viewport -->
-        <div id="chart-viewport" class="flex-1 w-full overflow-hidden rounded-xl bg-[#131722] border border-[#1e2638] flex items-center justify-center p-1">
+        <div id="chart-viewport" class="w-full min-h-[380px] sm:min-h-[430px] flex-shrink-0 rounded-xl bg-[#131722] border border-[#1e2638] flex items-center justify-center p-1">
           <!-- Rendered dynamically via JS -->
         </div>
 
@@ -718,6 +730,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 <span onclick="setReviewRating(5)" onmouseover="hoverReviewRating(5)" onmouseout="resetHoverRating()" id="star-5" class="text-lg text-gray-600 transition-colors">★</span>
               </div>
               <span id="review-rating-desc" class="text-[11px] text-[#8b9bb4] font-medium ml-1">點擊星星評分</span>
+              <div class="h-4 w-px bg-[#1e2638] mx-1"></div>
+              <span class="text-[11px] font-bold text-[#8b9bb4]">Follow System:</span>
+              <div class="inline-flex items-center gap-1 bg-[#121824] p-0.5 rounded-lg border border-[#1e2638] text-[11px] font-bold">
+                <button onclick="setFollowSystem('YES')" id="btn-follow-yes" class="px-2 py-0.5 rounded text-[#8b9bb4] hover:text-emerald-400 transition-all">✅ YES</button>
+                <button onclick="setFollowSystem('NO')" id="btn-follow-no" class="px-2 py-0.5 rounded text-[#8b9bb4] hover:text-rose-400 transition-all">⚠️ NO</button>
+              </div>
             </div>
 
             <div class="flex items-center gap-2 text-xs">
@@ -777,19 +795,157 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     // ==========================================
     const REVIEWS_STORAGE_KEY = 'traderkeng_tradovate_reviews';
 
+    const dailyPlansDb = __DAILY_PLANS_JSON__;
+    const PLAN_IMG_PREFIX = '../';
+    const SYMBOL_TO_PLAN_FAMILY = {
+      'MNQ': 'NQ', 'NQ': 'NQ', 'NAS100': 'NQ',
+      'MGC': 'GC', 'GC': 'GC', 'XAUUSD': 'GC',
+      'MES': 'ES', 'ES': 'ES', 'US500': 'ES',
+      'HK50': 'HSF', 'HSF': 'HSF',
+      'BTCUSD': 'BTC', 'BTC': 'BTC'
+    };
+
+    function getPlanForTrade(dateKey, sym) {
+      const dayPlans = dailyPlansDb[dateKey];
+      if (!dayPlans) return null;
+      const family = SYMBOL_TO_PLAN_FAMILY[sym] || sym;
+      return dayPlans[sym] || dayPlans[family] || null;
+    }
+
+    let showPlanLevelsOnChart = true;
+    let currentPlanChartIdx = 0;
+
+    function togglePlanLevels() {
+      showPlanLevelsOnChart = !showPlanLevelsOnChart;
+      const btn = document.getElementById('btn-toggle-levels');
+      const dot = document.getElementById('levels-state-dot');
+      if (btn) {
+        btn.className = showPlanLevelsOnChart
+          ? 'px-2.5 py-1.5 rounded-xl bg-purple-500/15 text-purple-300 border border-purple-500/35 text-xs font-bold flex items-center gap-1 transition-all'
+          : 'px-2.5 py-1.5 rounded-xl bg-[#0b0e14] text-[#8b9bb4] border border-[#1e2638] text-xs font-medium flex items-center gap-1 transition-all';
+      }
+      if (dot) dot.className = showPlanLevelsOnChart ? 'w-1.5 h-1.5 rounded-full bg-purple-400' : 'w-1.5 h-1.5 rounded-full bg-gray-600';
+      renderViewport();
+    }
+
+    function openPlanLightbox(src, caption) {
+      const lb = document.getElementById('plan-lightbox');
+      const img = document.getElementById('lightbox-img');
+      const cap = document.getElementById('lightbox-caption');
+      if (lb && img) {
+        img.src = src;
+        if (cap) cap.innerText = caption;
+        lb.classList.remove('hidden');
+      }
+    }
+
+    function closePlanLightbox() {
+      const lb = document.getElementById('plan-lightbox');
+      if (lb) lb.classList.add('hidden');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePlanLightbox();
+    });
+
+    function selectPlanChart(idx) {
+      currentPlanChartIdx = idx;
+      renderViewport();
+    }
+
+    function renderPlanViewer(trade) {
+      const plan = getPlanForTrade(currentSelectedDate, trade.sym);
+      if (!plan || !plan.charts || plan.charts.length === 0) {
+        return `
+          <div class="p-10 text-center text-gray-400 font-sans text-xs space-y-2">
+            <div class="text-amber-400 font-bold text-sm">⚠️ ${currentSelectedDate} 並無 ${trade.sym} 的開市前交易計劃</div>
+            <div class="text-[#8b9bb4]">系統已嚴格按品種群組配對（NQ ↔ MNQ/NAS100 ｜ GC ↔ MGC/XAUUSD），不會誤顯示其他品種的計劃圖。</div>
+            <div class="pt-1">
+              <button onclick="switchActiveTf('5m')" class="px-3 py-1 rounded-lg bg-[#1e2638] hover:bg-[#2b354d] text-blue-300 font-semibold transition-all">➔ 返回 5m K 線覆盤</button>
+            </div>
+          </div>`;
+      }
+
+      if (currentPlanChartIdx >= plan.charts.length) currentPlanChartIdx = plan.charts.length - 1;
+      const activeChart = plan.charts[currentPlanChartIdx] || plan.charts[0];
+      const imgSrc = PLAN_IMG_PREFIX + activeChart.src;
+
+      const tabsHtml = plan.charts.map((c, idx) => {
+        const isAct = idx === currentPlanChartIdx;
+        const cls = isAct
+          ? 'px-3 py-1 rounded-lg bg-purple-500/20 text-purple-200 border border-purple-500/40 font-bold'
+          : 'px-3 py-1 rounded-lg bg-[#0b0e14] text-[#8b9bb4] hover:text-white border border-[#1e2638]';
+        return `<button onclick="selectPlanChart(${idx})" class="text-xs transition-all ${cls}">${c.label}</button>`;
+      }).join('');
+
+      const levelsHtml = (plan.levels && plan.levels.length > 0)
+        ? `<div class="flex-shrink-0 flex flex-wrap items-center gap-1.5 pt-1">
+            <span class="text-[10px] font-bold text-purple-300 mr-1">AI 提取關鍵價位:</span>
+            ${plan.levels.map(lv => `
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#0b0e14] border border-[#1e2638] text-[10px] font-mono text-gray-200">
+                <span class="w-2 h-2 rounded-full" style="background:${lv.color}"></span>
+                ${lv.label}
+              </span>
+            `).join('')}
+          </div>`
+        : '';
+
+      return `
+        <div class="w-full flex flex-col p-2.5 space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
+            <div class="flex items-center gap-1.5 flex-wrap">${tabsHtml}</div>
+            <div class="flex items-center gap-2 text-[11px]">
+              <span class="text-[#8b9bb4] font-mono">${plan.created_hkt || currentSelectedDate}</span>
+              ${activeChart.tv ? `<a href="${activeChart.tv}" target="_blank" class="px-2 py-1 rounded-lg bg-[#0b0e14] hover:bg-[#1e2638] text-gray-300 border border-[#1e2638] transition-all">TV 原圖 ↗</a>` : ''}
+              <a href="${plan.notion_url}" target="_blank" class="px-2.5 py-1 rounded-lg bg-[#1e2638] hover:bg-[#2b354d] text-blue-300 font-semibold transition-all">開啟 Notion 原頁 ↗</a>
+            </div>
+          </div>
+
+          <div class="w-full min-h-[300px] sm:min-h-[350px] bg-[#0b0e14] rounded-xl border border-[#1e2638] flex items-center justify-center p-1.5 relative group">
+            <img src="${imgSrc}" alt="${activeChart.label}"
+                 onclick="openPlanLightbox('${imgSrc}', '${plan.title.replace(/'/g, '')} — ${activeChart.label}')"
+                 class="w-full h-auto max-h-[460px] object-contain rounded-lg cursor-zoom-in transition-transform" />
+            <span class="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/70 text-[10px] text-gray-300 opacity-80 group-hover:opacity-100 pointer-events-none">🔍 點擊放大全螢幕檢視</span>
+          </div>
+          ${levelsHtml}
+        </div>
+      `;
+    }
+
+    function setFollowSystem(val) {
+      const db = getReviewsDb();
+      const key = getTradeKey(currentSelectedDate, currentTradeId);
+      if (!db[key]) db[key] = { rating: 0, tags: [], comment: '', followSystem: '' };
+      db[key].followSystem = (db[key].followSystem === val) ? '' : val;
+      db[key].updated_at = Date.now();
+      saveReviewsDb(db);
+      updateFollowSystemDisplay(db[key].followSystem);
+    }
+
+    function updateFollowSystemDisplay(val) {
+      const btnY = document.getElementById('btn-follow-yes');
+      const btnN = document.getElementById('btn-follow-no');
+      if (btnY) btnY.className = val === 'YES'
+        ? 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+        : 'px-2 py-0.5 rounded text-[#8b9bb4] hover:text-emerald-400 transition-all';
+      if (btnN) btnN.className = val === 'NO'
+        ? 'px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40'
+        : 'px-2 py-0.5 rounded text-[#8b9bb4] hover:text-rose-400 transition-all';
+    }
+
     const DEFAULT_REVIEW_TAGS = [
-      { name: '✓ 遵守紀律', type: 'pos' },
-      { name: '✓ 順勢回踩', type: 'pos' },
-      { name: '✓ 狙擊點位', type: 'pos' },
-      { name: '✓ 耐心等待', type: 'pos' },
-      { name: '✓ 果斷止損', type: 'pos' },
-      { name: '✓ 讓利潤奔跑', type: 'pos' },
+      { name: 'iFVG', type: 'pos' },
+      { name: 'Breaker', type: 'pos' },
+      { name: 'SMR', type: 'pos' },
+      { name: 'FVG', type: 'pos' },
+      { name: 'OB', type: 'pos' },
+      { name: 'OTE', type: 'pos' },
+      { name: '2B / TS', type: 'pos' },
+      { name: '✓ 關鍵位狙擊', type: 'pos' },
       { name: '⚠️ 衝動追單 (FOMO)', type: 'neg' },
-      { name: '⚠️ 追高殺跌', type: 'neg' },
+      { name: '⚠️ 半空進場', type: 'neg' },
       { name: '⚠️ 逆勢摸頂底', type: 'neg' },
-      { name: '⚠️ 扛單未止損', type: 'neg' },
-      { name: '⚠️ 過早平倉', type: 'neg' },
-      { name: '⚠️ 報復性過度交易', type: 'neg' }
+      { name: '⚠️ 過早平倉', type: 'neg' }
     ];
 
     const RATING_DESCRIPTIONS = {
@@ -835,6 +991,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const key = getTradeKey(currentSelectedDate, currentTradeId);
       const rev = db[key] || { rating: 0, tags: [], comment: '' };
       updateStarDisplay(rev.rating || 0);
+      updateFollowSystemDisplay(rev.followSystem || "");
       renderReviewTags(rev.tags || []);
       const txt = document.getElementById('review-comment-textarea');
       if (txt) txt.value = rev.comment || '';
@@ -868,6 +1025,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const key = getTradeKey(currentSelectedDate, currentTradeId);
       const rev = db[key] || { rating: 0 };
       updateStarDisplay(rev.rating || 0);
+      updateFollowSystemDisplay(rev.followSystem || "");
     }
 
     function setReviewRating(rating) {
@@ -1816,6 +1974,18 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         </div>
       `;
 
+      const matchedPlan = getPlanForTrade(currentSelectedDate, trade.sym);
+      const planBtn = document.getElementById('btn-tf-plan');
+      const lvBtn = document.getElementById('btn-toggle-levels');
+      if (matchedPlan && matchedPlan.charts && matchedPlan.charts.length > 0) {
+        currentPlanChartIdx = matchedPlan.charts.length - 1;
+        if (planBtn) planBtn.innerHTML = `<span>📐 計劃 (${matchedPlan.charts.length}圖)</span>`;
+        if (lvBtn) lvBtn.style.opacity = (matchedPlan.levels && matchedPlan.levels.length > 0) ? '1' : '0.45';
+      } else {
+        if (planBtn) planBtn.innerHTML = `<span class="opacity-50">📐 無計劃</span>`;
+        if (lvBtn) lvBtn.style.opacity = '0.35';
+      }
+
       renderViewport();
       loadReviewForCurrentTrade();
     }
@@ -1946,7 +2116,23 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         svg.push(`<rect x="${(x_center - bar_w / 2).toFixed(1)}" y="${body_top.toFixed(1)}" width="${bar_w.toFixed(1)}" height="${body_h.toFixed(1)}" fill="${color}" stroke="${color}" stroke-width="0.5"/>`);
       });
 
-      const in_x = tsToX(trade.in_ts);
+      if (showPlanLevelsOnChart) {
+        const plan = getPlanForTrade(currentSelectedDate, trade.sym);
+        if (plan && plan.levels) {
+          plan.levels.forEach(lv => {
+            if (lv.price >= min_p && lv.price <= max_p) {
+              const ly = priceToY(lv.price);
+              const dash = lv.style === 'dotted' ? '2 3' : (lv.style === 'dashed' ? '6 4' : '0');
+              svg.push(`<line x1="${margin_left}" y1="${ly.toFixed(1)}" x2="${width - margin_right}" y2="${ly.toFixed(1)}" stroke="${lv.color}" stroke-width="1.3" stroke-dasharray="${dash}" opacity="0.85"/>`);
+              const lblW = lv.label.length * 6.2 + 12;
+              svg.push(`<rect x="${margin_left + 4}" y="${(ly - 14).toFixed(1)}" width="${lblW.toFixed(0)}" height="14" rx="3" fill="#0b0e14" fill-opacity="0.85" stroke="${lv.color}" stroke-width="0.6"/>`);
+              svg.push(`<text x="${margin_left + 10}" y="${(ly - 4).toFixed(1)}" fill="${lv.color}" font-size="9.5" font-weight="bold" font-family="monospace">${lv.label}</text>`);
+            }
+          });
+        }
+      }
+
+            const in_x = tsToX(trade.in_ts);
       const out_x = tsToX(trade.out_ts);
       const in_y = priceToY(trade.in_price);
       const out_y = priceToY(trade.out_price);
@@ -1993,7 +2179,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (!trade) return;
       const vp = document.getElementById('chart-viewport');
 
-      if (currentTf === 'all') {
+      if (currentTf === 'plan') {
+        vp.innerHTML = renderPlanViewer(trade);
+      } else if (currentTf === 'all') {
         vp.innerHTML = `
           <div class="w-full h-full overflow-y-auto space-y-4 p-2">
             <div>${renderTradeSvg(trade, '15m')}</div>
@@ -2012,6 +2200,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     renderDateSelectorPills();
     if (currentSelectedDate) loadDate(currentSelectedDate);
   </script>
+
+  <!-- Fullscreen Lightbox for Notion TV Plan Charts -->
+  <div id="plan-lightbox" onclick="closePlanLightbox()" class="hidden fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4 cursor-zoom-out">
+    <div class="w-full max-w-6xl flex items-center justify-between mb-2 text-xs text-gray-300">
+      <span id="lightbox-caption" class="font-bold text-white"></span>
+      <span class="px-2.5 py-1 rounded-lg bg-white/10 text-gray-200">點擊任意位置關閉 (ESC)</span>
+    </div>
+    <img id="lightbox-img" src="" class="max-w-full max-h-[88vh] rounded-xl border border-[#2b354d] shadow-2xl object-contain" />
+  </div>
 </body>
 </html>
 """
@@ -2035,7 +2232,12 @@ def main():
         json.dump(journal_db, f, ensure_ascii=False, indent=2)
 
     compact_json = json.dumps(journal_db, ensure_ascii=False, separators=(",", ":"))
-    html_out = HTML_TEMPLATE.replace("__JOURNAL_DB_JSON__", compact_json)
+    plans_db = {}
+    if os.path.exists(PLANS_INDEX_PATH):
+        with open(PLANS_INDEX_PATH, "r", encoding="utf-8") as pf:
+            plans_db = json.load(pf)
+    compact_plans = json.dumps(plans_db, ensure_ascii=False, separators=(",", ":"))
+    html_out = HTML_TEMPLATE.replace("__JOURNAL_DB_JSON__", compact_json).replace("__DAILY_PLANS_JSON__", compact_plans)
     with open(HTML_OUT_PATH, "w", encoding="utf-8") as f:
         f.write(html_out)
 

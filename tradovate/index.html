@@ -395,17 +395,28 @@
             <p id="viewer-trade-subtitle" class="text-[11px] text-[#8b9bb4] mt-0.5 truncate">--</p>
           </div>
 
-          <!-- Timeframe Selector Buttons -->
-          <div class="flex items-center gap-1 p-1 bg-[#0b0e14] rounded-xl border border-[#1e2638] text-xs font-medium flex-shrink-0">
-            <button onclick="switchActiveTf('1m')" id="btn-tf-1m" class="tf-btn px-2.5 py-1 rounded-lg bg-[#1e2638] text-blue-400 font-bold shadow-xs">1m 微觀</button>
-            <button onclick="switchActiveTf('5m')" id="btn-tf-5m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">5m 波段</button>
-            <button onclick="switchActiveTf('15m')" id="btn-tf-15m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">15m 結構</button>
-            <button onclick="switchActiveTf('all')" id="btn-tf-all" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">三圖並列</button>
+          <!-- Right Panel Controls: Plan Overlay + Timeframe / Plan Tab -->
+          <div class="flex items-center gap-1.5 flex-wrap flex-shrink-0">
+            <button onclick="togglePlanLevels()" id="btn-toggle-levels" class="px-2.5 py-1.5 rounded-xl bg-purple-500/15 text-purple-300 border border-purple-500/35 text-xs font-bold flex items-center gap-1 transition-all" title="喺 K 線圖疊加開市前計劃嘅支持阻力位">
+              <span>📐 計劃價位</span>
+              <span id="levels-state-dot" class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+            </button>
+
+            <div class="flex items-center gap-1 p-1 bg-[#0b0e14] rounded-xl border border-[#1e2638] text-xs font-medium">
+              <button onclick="switchActiveTf('1m')" id="btn-tf-1m" class="tf-btn px-2.5 py-1 rounded-lg bg-[#1e2638] text-blue-400 font-bold shadow-xs">1m</button>
+              <button onclick="switchActiveTf('5m')" id="btn-tf-5m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">5m</button>
+              <button onclick="switchActiveTf('15m')" id="btn-tf-15m" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">15m</button>
+              <button onclick="switchActiveTf('all')" id="btn-tf-all" class="tf-btn px-2.5 py-1 rounded-lg text-[#8b9bb4] hover:text-white">三圖</button>
+              <div class="w-px h-4 bg-[#1e2638] mx-0.5"></div>
+              <button onclick="switchActiveTf('plan')" id="btn-tf-plan" class="tf-btn px-2.5 py-1 rounded-lg text-purple-300 hover:bg-purple-500/15 font-bold flex items-center gap-1 transition-all">
+                <span>📐 計劃</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Fixed SVG Chart Viewport -->
-        <div id="chart-viewport" class="flex-1 w-full overflow-hidden rounded-xl bg-[#131722] border border-[#1e2638] flex items-center justify-center p-1">
+        <div id="chart-viewport" class="w-full min-h-[380px] sm:min-h-[430px] flex-shrink-0 rounded-xl bg-[#131722] border border-[#1e2638] flex items-center justify-center p-1">
           <!-- Rendered dynamically via JS -->
         </div>
 
@@ -432,6 +443,12 @@
                 <span onclick="setReviewRating(5)" onmouseover="hoverReviewRating(5)" onmouseout="resetHoverRating()" id="star-5" class="text-lg text-gray-600 transition-colors">★</span>
               </div>
               <span id="review-rating-desc" class="text-[11px] text-[#8b9bb4] font-medium ml-1">點擊星星評分</span>
+              <div class="h-4 w-px bg-[#1e2638] mx-1"></div>
+              <span class="text-[11px] font-bold text-[#8b9bb4]">Follow System:</span>
+              <div class="inline-flex items-center gap-1 bg-[#121824] p-0.5 rounded-lg border border-[#1e2638] text-[11px] font-bold">
+                <button onclick="setFollowSystem('YES')" id="btn-follow-yes" class="px-2 py-0.5 rounded text-[#8b9bb4] hover:text-emerald-400 transition-all">✅ YES</button>
+                <button onclick="setFollowSystem('NO')" id="btn-follow-no" class="px-2 py-0.5 rounded text-[#8b9bb4] hover:text-rose-400 transition-all">⚠️ NO</button>
+              </div>
             </div>
 
             <div class="flex items-center gap-2 text-xs">
@@ -491,19 +508,157 @@
     // ==========================================
     const REVIEWS_STORAGE_KEY = 'traderkeng_tradovate_reviews';
 
+    const dailyPlansDb = {"2026-11-20":{"NQ":{"title":"NQ | 2026-11-20 (FRI) Plan","created_hkt":"2026-11-20","notion_url":"https://app.notion.com/p/41e68cfb782b81278488c1f6ddc64890","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-20/NQ/1_Monthly.png","tv":"https://www.tradingview.com/x/H2beVzJQ/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-20/NQ/2_Weekly.png","tv":"https://www.tradingview.com/x/j7ek2PE6/"},{"id":"c3","label":"Daily","src":"plans/2026-11-20/NQ/3_Daily.png","tv":"https://www.tradingview.com/x/I2xFpCNH/"},{"id":"c4","label":"Hourly","src":"plans/2026-11-20/NQ/4_Hourly.png","tv":"https://www.tradingview.com/x/I2xFpCNH/"},{"id":"c5","label":"15m RTH","src":"plans/2026-11-20/NQ/5_15m_RTH.png","tv":"https://www.tradingview.com/x/Kus1cZrm/"},{"id":"c6","label":"15m ETH","src":"plans/2026-11-20/NQ/6_15m_ETH.png","tv":"https://www.tradingview.com/x/V1RWJN2G/"}],"levels":[{"price":27120.0,"label":"15m FVG (27020-27220)","color":"#22d3ee","style":"dashed"},{"price":26867.0,"label":"0.5 EQ (26867)","color":"#c084fc","style":"solid"},{"price":26725.0,"label":"BSL / 15m FVG (26725)","color":"#60a5fa","style":"solid"},{"price":26593.5,"label":"RTH Closing (26593.5)","color":"#fb7185","style":"dotted"},{"price":25727.0,"label":"Monthly OB (25727)","color":"#facc15","style":"solid"}]}},"2026-11-02":{"GC":{"title":"GC | 2026-11-02 (MON) Plan","created_hkt":"2026-11-02","notion_url":"https://app.notion.com/p/40b68cfb782b814ab1f8ea7662291e5a","charts":[{"id":"c1","label":"Weekly","src":"plans/2026-11-02/GC/1_Weekly.png","tv":"https://www.tradingview.com/x/RcWLhqca/"},{"id":"c2","label":"Weekly #2","src":"plans/2026-11-02/GC/2_Weekly.png","tv":"https://www.tradingview.com/x/39pE22hO/"},{"id":"c3","label":"Hourly","src":"plans/2026-11-02/GC/3_Hourly.png","tv":"https://www.tradingview.com/x/DuDY4XiF/"},{"id":"c4","label":"Update","src":"plans/2026-11-02/GC/4_Update_GC.png","tv":"https://www.tradingview.com/x/d1m7D1wk"},{"id":"c5","label":"Update #2","src":"plans/2026-11-02/GC/5_chart.png","tv":"https://www.tradingview.com/x/tCFMzM87"},{"id":"c6","label":"Chart 6","src":"plans/2026-11-02/GC/6_Chart_6.png","tv":"https://www.tradingview.com/x/sbSvi3Br/"}],"levels":[]}},"2026-11-03":{"HSF":{"title":"HSF | 2026-11-03 (TUE) Plan","created_hkt":"2026-11-03","notion_url":"https://app.notion.com/p/40c68cfb782b813ca25acee75cdad644","charts":[{"id":"c1","label":"Weekly","src":"plans/2026-11-03/HSF/1_Weekly.png","tv":"https://www.tradingview.com/x/h1agOVna/"},{"id":"c2","label":"Daily","src":"plans/2026-11-03/HSF/2_Daily.png","tv":"https://www.tradingview.com/x/sOLPIje1/"},{"id":"c3","label":"Hourly","src":"plans/2026-11-03/HSF/3_Hourly.png","tv":"https://www.tradingview.com/x/7R2SIOcM/"}],"levels":[]},"GC":{"title":"GC | 2026-11-03 (TUE) Plan","created_hkt":"2026-11-03","notion_url":"https://app.notion.com/p/40c68cfb782b8189ba7fc8aa984d38bc","charts":[{"id":"c1","label":"Daily","src":"plans/2026-11-03/GC/1_Daily.png","tv":"https://www.tradingview.com/x/4jf6srHQ/"},{"id":"c2","label":"Hourly","src":"plans/2026-11-03/GC/2_Hourly.png","tv":"https://www.tradingview.com/x/JkC7G2uh/"},{"id":"c3","label":"15m","src":"plans/2026-11-03/GC/3_15m.png","tv":"https://www.tradingview.com/x/DDJuqxtK/"}],"levels":[]}},"2026-11-04":{"NQ":{"title":"NQ | 2026-11-04 (WED) Plan","created_hkt":"2026-11-04","notion_url":"https://app.notion.com/p/40e68cfb782b81979388e1e38867a2e0","charts":[{"id":"c1","label":"Weekly","src":"plans/2026-11-04/NQ/1_Weekly.png","tv":"https://www.tradingview.com/x/2t0xWvvn/"},{"id":"c2","label":"Daily","src":"plans/2026-11-04/NQ/2_Daily.png","tv":"https://www.tradingview.com/x/LQBOTrWu/"},{"id":"c3","label":"Hourly","src":"plans/2026-11-04/NQ/3_Hourly.png","tv":"https://www.tradingview.com/x/kScqlRVb/"},{"id":"c4","label":"15m RTH","src":"plans/2026-11-04/NQ/4_15m_RTH.png","tv":"https://www.tradingview.com/x/w7z06YmQ/"},{"id":"c5","label":"15m ETH","src":"plans/2026-11-04/NQ/5_15m_ETH.png","tv":"https://www.tradingview.com/x/t3qP4r2Y/"}],"levels":[]},"GC":{"title":"GC | 2026-11-04 (WED) Plan","created_hkt":"2026-11-04","notion_url":"https://app.notion.com/p/40d68cfb782b81e4a5b2df7f15bbc932","charts":[{"id":"c1","label":"Daily","src":"plans/2026-11-04/GC/1_Daily.png","tv":"https://www.tradingview.com/x/1NYz9jpm/"},{"id":"c2","label":"Hourly","src":"plans/2026-11-04/GC/2_Hourly.png","tv":"https://www.tradingview.com/x/VEDdeMQ4/"},{"id":"c3","label":"Chart 3","src":"plans/2026-11-04/GC/3_Chart_3.png","tv":"https://www.tradingview.com/x/x7AvajXC"}],"levels":[]}},"2026-11-05":{"NQ":{"title":"NQ | 2026-11-05 (THU) Plan","created_hkt":"2026-11-05","notion_url":"https://app.notion.com/p/40f68cfb782b81b0a2d7f98334393ff5","charts":[{"id":"c1","label":"Daily","src":"plans/2026-11-05/NQ/1_Daily.png","tv":"https://www.tradingview.com/x/mpiLEWyR/"},{"id":"c2","label":"Hourly","src":"plans/2026-11-05/NQ/2_Hourly.png","tv":"https://www.tradingview.com/x/KUzFpGfO/"},{"id":"c3","label":"15m ETH","src":"plans/2026-11-05/NQ/3_15m_ETH.png","tv":"https://www.tradingview.com/x/jFwVse3D/"},{"id":"c4","label":"15m RTH","src":"plans/2026-11-05/NQ/4_15m_RTH.png","tv":"https://www.tradingview.com/x/KiYj7GbK/"}],"levels":[]}},"2026-11-06":{"GC":{"title":"GC | 2026-11-06 (FRI) Plan","created_hkt":"2026-11-06","notion_url":"https://app.notion.com/p/40f68cfb782b81748de2c33fe6a561aa","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-06/GC/1_Monthly.png","tv":"https://www.tradingview.com/x/yjnpHrEU/"},{"id":"c2","label":"Daily","src":"plans/2026-11-06/GC/2_Daily.png","tv":"https://www.tradingview.com/x/rq4SfR3P/"},{"id":"c3","label":"15m","src":"plans/2026-11-06/GC/3_15m.png","tv":"https://www.tradingview.com/x/QE5DanW7/"}],"levels":[]}},"2026-11-09":{"NQ":{"title":"NQ | 2026-11-09 (MON) Plan","created_hkt":"2026-11-09","notion_url":"https://app.notion.com/p/41368cfb782b81e78ba7c8cf3a22b785","charts":[{"id":"c1","label":"Daily","src":"plans/2026-11-09/NQ/1_Daily.png","tv":"https://www.tradingview.com/x/QpsVLOQG/"},{"id":"c2","label":"Hourly","src":"plans/2026-11-09/NQ/2_Hourly.png","tv":"https://www.tradingview.com/x/QL0ARxqr/"},{"id":"c3","label":"1m","src":"plans/2026-11-09/NQ/3_1m.png","tv":"https://www.tradingview.com/x/nZ3Er1ya/"},{"id":"c4","label":"15m RTH","src":"plans/2026-11-09/NQ/4_15m_RTH.png","tv":"https://www.tradingview.com/x/pdZK7Bxt/"},{"id":"c5","label":"Update","src":"plans/2026-11-09/NQ/5_NQ_Update.png","tv":"https://www.tradingview.com/x/8lhMLQRs/"},{"id":"c6","label":"Chart 6","src":"plans/2026-11-09/NQ/6_Chart_6.png","tv":"https://www.tradingview.com/x/jVImfJrS/"}],"levels":[]},"GC":{"title":"GC | 2026-11-09 (MON) Plan","created_hkt":"2026-11-09","notion_url":"https://app.notion.com/p/41268cfb782b815aa539ce659aba659c","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-09/GC/1_Monthly.png","tv":"https://www.tradingview.com/x/bwmacnHO/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-09/GC/2_Weekly.png","tv":"https://www.tradingview.com/x/BtEZglGH/"},{"id":"c3","label":"Daily","src":"plans/2026-11-09/GC/3_Daily.png","tv":"https://www.tradingview.com/x/0kDqlS7M/"},{"id":"c4","label":"Hourly","src":"plans/2026-11-09/GC/4_Hourly.png","tv":"https://www.tradingview.com/x/mVC3D0Ew/"},{"id":"c5","label":"Hourly #2","src":"plans/2026-11-09/GC/5_Hourly.png","tv":"https://www.tradingview.com/x/oMrQodSk/"},{"id":"c6","label":"15m","src":"plans/2026-11-09/GC/6_15m.png","tv":"https://www.tradingview.com/x/i9oC2I3b/"},{"id":"c7","label":"Chart 7","src":"plans/2026-11-09/GC/7_Chart_7.png","tv":"https://www.tradingview.com/x/TscZC5sV"}],"levels":[]}},"2026-11-10":{"NQ":{"title":"NQ | 2026-11-10 (TUE) Plan","created_hkt":"2026-11-10","notion_url":"https://app.notion.com/p/41468cfb782b8103b8b3c95b54d671aa","charts":[{"id":"c1","label":"Weekly","src":"plans/2026-11-10/NQ/1_Weekly.png","tv":"https://www.tradingview.com/x/QcyzHHc2/"},{"id":"c2","label":"Daily","src":"plans/2026-11-10/NQ/2_Daily.png","tv":"https://www.tradingview.com/x/exZTCqFn/"},{"id":"c3","label":"Hourly","src":"plans/2026-11-10/NQ/3_Hourly.png","tv":"https://www.tradingview.com/x/AFZIkDak/"},{"id":"c4","label":"15m RTH","src":"plans/2026-11-10/NQ/4_15m_RTH.png","tv":"https://www.tradingview.com/x/oqlZ9o9b/"}],"levels":[]},"GC":{"title":"GC | 2026-11-10 (TUE) Plan","created_hkt":"2026-11-10","notion_url":"https://app.notion.com/p/41368cfb782b81289e0be238e742ff31","charts":[{"id":"c1","label":"Weekly","src":"plans/2026-11-10/GC/1_Weekly.png","tv":"https://www.tradingview.com/x/P15l5PVq/"},{"id":"c2","label":"Daily","src":"plans/2026-11-10/GC/2_Daily.png","tv":"https://www.tradingview.com/x/kC3awWMj/"},{"id":"c3","label":"Hourly","src":"plans/2026-11-10/GC/3_Hourly.png","tv":"https://www.tradingview.com/x/xs8o7zGv/"}],"levels":[]}},"2026-11-12":{"GC":{"title":"GC | 2026-11-12 (THU) Plan","created_hkt":"2026-11-12","notion_url":"https://app.notion.com/p/41568cfb782b819dac14d215183b5ea7","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-12/GC/1_Monthly.png","tv":"https://www.tradingview.com/x/T9tAErsn/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-12/GC/2_Weekly.png","tv":"https://www.tradingview.com/x/78YuxhgE/"},{"id":"c3","label":"Daily","src":"plans/2026-11-12/GC/3_Daily.png","tv":"https://www.tradingview.com/x/2zw9LCwV/"},{"id":"c4","label":"Chart 4","src":"plans/2026-11-12/GC/4_chart.png","tv":"https://www.tradingview.com/x/iiejKxec/"},{"id":"c5","label":"Hourly","src":"plans/2026-11-12/GC/5_Hourly.png","tv":"https://www.tradingview.com/x/bwFY5CyE/"},{"id":"c6","label":"Update","src":"plans/2026-11-12/GC/6_GC_Update.png","tv":"https://www.tradingview.com/x/KV3Bf5ZB/"}],"levels":[]}},"2026-11-13":{"NQ":{"title":"NQ | 2026-11-13 (FRI) Plan","created_hkt":"2026-11-13","notion_url":"https://app.notion.com/p/41768cfb782b81e38ac3e64455f00246","charts":[{"id":"c1","label":"Weekly","src":"plans/2026-11-13/NQ/1_Weekly.png","tv":"https://www.tradingview.com/x/WfPh1dL0/"},{"id":"c2","label":"Daily","src":"plans/2026-11-13/NQ/2_Daily.png","tv":"https://www.tradingview.com/x/kh9Jd2G2/"},{"id":"c3","label":"Hourly","src":"plans/2026-11-13/NQ/3_Hourly.png","tv":"https://www.tradingview.com/x/wpYUwzf4/"},{"id":"c4","label":"15m","src":"plans/2026-11-13/NQ/4_15m.png","tv":"https://www.tradingview.com/x/KNxkApYU/"},{"id":"c5","label":"15m RTH","src":"plans/2026-11-13/NQ/5_15m_RTH.png","tv":"https://www.tradingview.com/x/TsXoECCo/"},{"id":"c6","label":"Update","src":"plans/2026-11-13/NQ/6_chart.png","tv":"https://www.tradingview.com/x/kgdlwWEt/"},{"id":"c7","label":"Update #2","src":"plans/2026-11-13/NQ/7_chart.png","tv":"https://www.tradingview.com/x/kgdlwWEt/"}],"levels":[]},"GC":{"title":"GC | 2026-11-13 (FRI) Plan","created_hkt":"2026-11-13","notion_url":"https://app.notion.com/p/41668cfb782b8135ada8c9526e75065c","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-13/GC/1_Monthly.png","tv":"https://www.tradingview.com/x/aMmTQU7Z/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-13/GC/2_Weekly.png","tv":"https://www.tradingview.com/x/BGUIrMYi/"},{"id":"c3","label":"Daily","src":"plans/2026-11-13/GC/3_Daily.png","tv":"https://www.tradingview.com/x/mQ8EnUvg/"},{"id":"c4","label":"Monthly #2","src":"plans/2026-11-13/GC/4_Monthly.png","tv":"https://www.tradingview.com/x/mlL0IEkU/"},{"id":"c5","label":"15m","src":"plans/2026-11-13/GC/5_15m.png","tv":"https://www.tradingview.com/x/Femjn3q0/"}],"levels":[]}},"2026-11-16":{"NQ":{"title":"NQ | 2026-11-16 (MON) Plan","created_hkt":"2026-11-16","notion_url":"https://app.notion.com/p/41a68cfb782b81c9aaf0df55a18fc441","charts":[{"id":"c1","label":"Daily","src":"plans/2026-11-16/NQ/1_Daily.png","tv":"https://www.tradingview.com/x/J9Nyu9hL/"},{"id":"c2","label":"Hourly","src":"plans/2026-11-16/NQ/2_Hourly.png","tv":"https://www.tradingview.com/x/aM15vHnL/"},{"id":"c3","label":"15m RTH","src":"plans/2026-11-16/NQ/3_15m_RTH.png","tv":"https://www.tradingview.com/x/x1ppf2V4/"},{"id":"c4","label":"15m ETH","src":"plans/2026-11-16/NQ/4_15m_ETH.png","tv":"https://www.tradingview.com/x/ksNDMBDx/"},{"id":"c5","label":"1m","src":"plans/2026-11-16/NQ/5_1m.png","tv":"https://www.tradingview.com/x/eIyJNRzU/"}],"levels":[]},"GC":{"title":"GC | 2026-11-16 (MON) Plan","created_hkt":"2026-11-16","notion_url":"https://app.notion.com/p/41968cfb782b8101afe8ee876acc4a05","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-16/GC/1_Monthly.png","tv":"https://www.tradingview.com/x/frwhTWB1/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-16/GC/2_Weekly.png","tv":"https://www.tradingview.com/x/frwhTWB1/"},{"id":"c3","label":"Daily","src":"plans/2026-11-16/GC/3_Daily.png","tv":"https://www.tradingview.com/x/0J7CRUgm/"},{"id":"c4","label":"Hourly","src":"plans/2026-11-16/GC/4_Hourly.png","tv":"https://www.tradingview.com/x/hOAVHr1s/"}],"levels":[]}},"2026-11-17":{"NQ":{"title":"NQ | 2026-11-17 (TUE) Plan","created_hkt":"2026-11-17","notion_url":"https://app.notion.com/p/41b68cfb782b817fb7c3cff3f1065e65","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-17/NQ/1_Monthly.png","tv":"https://www.tradingview.com/x/0KRelgJG/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-17/NQ/2_Weekly.png","tv":"https://www.tradingview.com/x/3vacY39R/"},{"id":"c3","label":"Daily","src":"plans/2026-11-17/NQ/3_Daily.png","tv":"https://www.tradingview.com/x/198goc6x/"},{"id":"c4","label":"Hourly","src":"plans/2026-11-17/NQ/4_Hourly.png","tv":"https://www.tradingview.com/x/FCVcbLuZ/"},{"id":"c5","label":"15m RTH","src":"plans/2026-11-17/NQ/5_15m_RTH.png","tv":"https://www.tradingview.com/x/vB5ZVIoh/"},{"id":"c6","label":"15m ETH","src":"plans/2026-11-17/NQ/6_15m_ETH.png","tv":"https://www.tradingview.com/x/T2TbZ1TX/"},{"id":"c7","label":"Update","src":"plans/2026-11-17/NQ/7_NQ_Update.png","tv":"https://www.tradingview.com/x/MNKBFgdu/"}],"levels":[]},"GC":{"title":"GC | 2026-11-17 (TUE) Plan","created_hkt":"2026-11-17","notion_url":"https://app.notion.com/p/41a68cfb782b81ad97d4f75cb305e9f7","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-17/GC/1_Monthly.png","tv":"https://www.tradingview.com/x/Xm07bhkh/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-17/GC/2_Weekly.png","tv":"https://www.tradingview.com/x/txNMHwxE/"},{"id":"c3","label":"Daily","src":"plans/2026-11-17/GC/3_Daily.png","tv":"https://www.tradingview.com/x/Wh2Z9hqt/"},{"id":"c4","label":"Hourly","src":"plans/2026-11-17/GC/4_Hourly.png","tv":"https://www.tradingview.com/x/WpiRRKDU/"},{"id":"c5","label":"15m","src":"plans/2026-11-17/GC/5_15m.png","tv":"https://www.tradingview.com/x/8rY9QDvJ/"},{"id":"c6","label":"Update","src":"plans/2026-11-17/GC/6_GC_Update.png","tv":"https://www.tradingview.com/x/LrPrvXiE/"}],"levels":[]}},"2026-11-18":{"BTC":{"title":"BTC | 2026-11-18 (TUE) Plan","created_hkt":"2026-11-18","notion_url":"https://app.notion.com/p/41b68cfb782b81948a6cddb6304c5cd0","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-18/BTC/1_Monthly.png","tv":"https://www.tradingview.com/x/Ygqvj1SB/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-18/BTC/2_Weekly.png","tv":"https://www.tradingview.com/x/djGGJH3q/"},{"id":"c3","label":"Daily","src":"plans/2026-11-18/BTC/3_Daily.png","tv":"https://www.tradingview.com/x/OMYMU6Rd/"},{"id":"c4","label":"Hourly","src":"plans/2026-11-18/BTC/4_Hourly.png","tv":"https://www.tradingview.com/x/rZNP1GyU/"},{"id":"c5","label":"Update","src":"plans/2026-11-18/BTC/5_BTC_Update.png","tv":"https://www.tradingview.com/x/RvvfBYj2/"}],"levels":[]},"GC":{"title":"GC | 2026-11-18 (WED) Plan","created_hkt":"2026-11-18 06:27 HKT","notion_url":"https://app.notion.com/p/41b68cfb782b81c4ba0ff679ca60adf9","charts":[{"id":"c1","label":"15m","src":"plans/2026-11-18/GC/1_15m_Consolidation.png","tv":"https://www.tradingview.com/x/44V2azGL/"}],"levels":[]}},"2026-11-19":{"NQ":{"title":"NQ | 2026-11-19 (THU) Plan","created_hkt":"2026-11-19","notion_url":"https://app.notion.com/p/41d68cfb782b816aa8bdda814a564644","charts":[{"id":"c1","label":"Monthly","src":"plans/2026-11-19/NQ/1_Monthly.png","tv":"https://www.tradingview.com/x/301UKEd0/"},{"id":"c2","label":"Weekly","src":"plans/2026-11-19/NQ/2_Weekly.png","tv":"https://www.tradingview.com/x/nFLSH8eb/"},{"id":"c3","label":"Daily","src":"plans/2026-11-19/NQ/3_Daily.png","tv":"https://www.tradingview.com/x/tAfAWZf6/"},{"id":"c4","label":"15m","src":"plans/2026-11-19/NQ/4_15m.png","tv":"https://www.tradingview.com/x/N31j4p4u/"},{"id":"c5","label":"Update","src":"plans/2026-11-19/NQ/5_chart.png","tv":"https://www.tradingview.com/x/6xJPCvOe/"}],"levels":[]}}};
+    const PLAN_IMG_PREFIX = '../';
+    const SYMBOL_TO_PLAN_FAMILY = {
+      'MNQ': 'NQ', 'NQ': 'NQ', 'NAS100': 'NQ',
+      'MGC': 'GC', 'GC': 'GC', 'XAUUSD': 'GC',
+      'MES': 'ES', 'ES': 'ES', 'US500': 'ES',
+      'HK50': 'HSF', 'HSF': 'HSF',
+      'BTCUSD': 'BTC', 'BTC': 'BTC'
+    };
+
+    function getPlanForTrade(dateKey, sym) {
+      const dayPlans = dailyPlansDb[dateKey];
+      if (!dayPlans) return null;
+      const family = SYMBOL_TO_PLAN_FAMILY[sym] || sym;
+      return dayPlans[sym] || dayPlans[family] || null;
+    }
+
+    let showPlanLevelsOnChart = true;
+    let currentPlanChartIdx = 0;
+
+    function togglePlanLevels() {
+      showPlanLevelsOnChart = !showPlanLevelsOnChart;
+      const btn = document.getElementById('btn-toggle-levels');
+      const dot = document.getElementById('levels-state-dot');
+      if (btn) {
+        btn.className = showPlanLevelsOnChart
+          ? 'px-2.5 py-1.5 rounded-xl bg-purple-500/15 text-purple-300 border border-purple-500/35 text-xs font-bold flex items-center gap-1 transition-all'
+          : 'px-2.5 py-1.5 rounded-xl bg-[#0b0e14] text-[#8b9bb4] border border-[#1e2638] text-xs font-medium flex items-center gap-1 transition-all';
+      }
+      if (dot) dot.className = showPlanLevelsOnChart ? 'w-1.5 h-1.5 rounded-full bg-purple-400' : 'w-1.5 h-1.5 rounded-full bg-gray-600';
+      renderViewport();
+    }
+
+    function openPlanLightbox(src, caption) {
+      const lb = document.getElementById('plan-lightbox');
+      const img = document.getElementById('lightbox-img');
+      const cap = document.getElementById('lightbox-caption');
+      if (lb && img) {
+        img.src = src;
+        if (cap) cap.innerText = caption;
+        lb.classList.remove('hidden');
+      }
+    }
+
+    function closePlanLightbox() {
+      const lb = document.getElementById('plan-lightbox');
+      if (lb) lb.classList.add('hidden');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePlanLightbox();
+    });
+
+    function selectPlanChart(idx) {
+      currentPlanChartIdx = idx;
+      renderViewport();
+    }
+
+    function renderPlanViewer(trade) {
+      const plan = getPlanForTrade(currentSelectedDate, trade.sym);
+      if (!plan || !plan.charts || plan.charts.length === 0) {
+        return `
+          <div class="p-10 text-center text-gray-400 font-sans text-xs space-y-2">
+            <div class="text-amber-400 font-bold text-sm">⚠️ ${currentSelectedDate} 並無 ${trade.sym} 的開市前交易計劃</div>
+            <div class="text-[#8b9bb4]">系統已嚴格按品種群組配對（NQ ↔ MNQ/NAS100 ｜ GC ↔ MGC/XAUUSD），不會誤顯示其他品種的計劃圖。</div>
+            <div class="pt-1">
+              <button onclick="switchActiveTf('5m')" class="px-3 py-1 rounded-lg bg-[#1e2638] hover:bg-[#2b354d] text-blue-300 font-semibold transition-all">➔ 返回 5m K 線覆盤</button>
+            </div>
+          </div>`;
+      }
+
+      if (currentPlanChartIdx >= plan.charts.length) currentPlanChartIdx = plan.charts.length - 1;
+      const activeChart = plan.charts[currentPlanChartIdx] || plan.charts[0];
+      const imgSrc = PLAN_IMG_PREFIX + activeChart.src;
+
+      const tabsHtml = plan.charts.map((c, idx) => {
+        const isAct = idx === currentPlanChartIdx;
+        const cls = isAct
+          ? 'px-3 py-1 rounded-lg bg-purple-500/20 text-purple-200 border border-purple-500/40 font-bold'
+          : 'px-3 py-1 rounded-lg bg-[#0b0e14] text-[#8b9bb4] hover:text-white border border-[#1e2638]';
+        return `<button onclick="selectPlanChart(${idx})" class="text-xs transition-all ${cls}">${c.label}</button>`;
+      }).join('');
+
+      const levelsHtml = (plan.levels && plan.levels.length > 0)
+        ? `<div class="flex-shrink-0 flex flex-wrap items-center gap-1.5 pt-1">
+            <span class="text-[10px] font-bold text-purple-300 mr-1">AI 提取關鍵價位:</span>
+            ${plan.levels.map(lv => `
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#0b0e14] border border-[#1e2638] text-[10px] font-mono text-gray-200">
+                <span class="w-2 h-2 rounded-full" style="background:${lv.color}"></span>
+                ${lv.label}
+              </span>
+            `).join('')}
+          </div>`
+        : '';
+
+      return `
+        <div class="w-full flex flex-col p-2.5 space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
+            <div class="flex items-center gap-1.5 flex-wrap">${tabsHtml}</div>
+            <div class="flex items-center gap-2 text-[11px]">
+              <span class="text-[#8b9bb4] font-mono">${plan.created_hkt || currentSelectedDate}</span>
+              ${activeChart.tv ? `<a href="${activeChart.tv}" target="_blank" class="px-2 py-1 rounded-lg bg-[#0b0e14] hover:bg-[#1e2638] text-gray-300 border border-[#1e2638] transition-all">TV 原圖 ↗</a>` : ''}
+              <a href="${plan.notion_url}" target="_blank" class="px-2.5 py-1 rounded-lg bg-[#1e2638] hover:bg-[#2b354d] text-blue-300 font-semibold transition-all">開啟 Notion 原頁 ↗</a>
+            </div>
+          </div>
+
+          <div class="w-full min-h-[300px] sm:min-h-[350px] bg-[#0b0e14] rounded-xl border border-[#1e2638] flex items-center justify-center p-1.5 relative group">
+            <img src="${imgSrc}" alt="${activeChart.label}"
+                 onclick="openPlanLightbox('${imgSrc}', '${plan.title.replace(/'/g, '')} — ${activeChart.label}')"
+                 class="w-full h-auto max-h-[460px] object-contain rounded-lg cursor-zoom-in transition-transform" />
+            <span class="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/70 text-[10px] text-gray-300 opacity-80 group-hover:opacity-100 pointer-events-none">🔍 點擊放大全螢幕檢視</span>
+          </div>
+          ${levelsHtml}
+        </div>
+      `;
+    }
+
+    function setFollowSystem(val) {
+      const db = getReviewsDb();
+      const key = getTradeKey(currentSelectedDate, currentTradeId);
+      if (!db[key]) db[key] = { rating: 0, tags: [], comment: '', followSystem: '' };
+      db[key].followSystem = (db[key].followSystem === val) ? '' : val;
+      db[key].updated_at = Date.now();
+      saveReviewsDb(db);
+      updateFollowSystemDisplay(db[key].followSystem);
+    }
+
+    function updateFollowSystemDisplay(val) {
+      const btnY = document.getElementById('btn-follow-yes');
+      const btnN = document.getElementById('btn-follow-no');
+      if (btnY) btnY.className = val === 'YES'
+        ? 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+        : 'px-2 py-0.5 rounded text-[#8b9bb4] hover:text-emerald-400 transition-all';
+      if (btnN) btnN.className = val === 'NO'
+        ? 'px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40'
+        : 'px-2 py-0.5 rounded text-[#8b9bb4] hover:text-rose-400 transition-all';
+    }
+
     const DEFAULT_REVIEW_TAGS = [
-      { name: '✓ 遵守紀律', type: 'pos' },
-      { name: '✓ 順勢回踩', type: 'pos' },
-      { name: '✓ 狙擊點位', type: 'pos' },
-      { name: '✓ 耐心等待', type: 'pos' },
-      { name: '✓ 果斷止損', type: 'pos' },
-      { name: '✓ 讓利潤奔跑', type: 'pos' },
+      { name: 'iFVG', type: 'pos' },
+      { name: 'Breaker', type: 'pos' },
+      { name: 'SMR', type: 'pos' },
+      { name: 'FVG', type: 'pos' },
+      { name: 'OB', type: 'pos' },
+      { name: 'OTE', type: 'pos' },
+      { name: '2B / TS', type: 'pos' },
+      { name: '✓ 關鍵位狙擊', type: 'pos' },
       { name: '⚠️ 衝動追單 (FOMO)', type: 'neg' },
-      { name: '⚠️ 追高殺跌', type: 'neg' },
+      { name: '⚠️ 半空進場', type: 'neg' },
       { name: '⚠️ 逆勢摸頂底', type: 'neg' },
-      { name: '⚠️ 扛單未止損', type: 'neg' },
-      { name: '⚠️ 過早平倉', type: 'neg' },
-      { name: '⚠️ 報復性過度交易', type: 'neg' }
+      { name: '⚠️ 過早平倉', type: 'neg' }
     ];
 
     const RATING_DESCRIPTIONS = {
@@ -549,6 +704,7 @@
       const key = getTradeKey(currentSelectedDate, currentTradeId);
       const rev = db[key] || { rating: 0, tags: [], comment: '' };
       updateStarDisplay(rev.rating || 0);
+      updateFollowSystemDisplay(rev.followSystem || "");
       renderReviewTags(rev.tags || []);
       const txt = document.getElementById('review-comment-textarea');
       if (txt) txt.value = rev.comment || '';
@@ -582,6 +738,7 @@
       const key = getTradeKey(currentSelectedDate, currentTradeId);
       const rev = db[key] || { rating: 0 };
       updateStarDisplay(rev.rating || 0);
+      updateFollowSystemDisplay(rev.followSystem || "");
     }
 
     function setReviewRating(rating) {
@@ -1530,6 +1687,18 @@
         </div>
       `;
 
+      const matchedPlan = getPlanForTrade(currentSelectedDate, trade.sym);
+      const planBtn = document.getElementById('btn-tf-plan');
+      const lvBtn = document.getElementById('btn-toggle-levels');
+      if (matchedPlan && matchedPlan.charts && matchedPlan.charts.length > 0) {
+        currentPlanChartIdx = matchedPlan.charts.length - 1;
+        if (planBtn) planBtn.innerHTML = `<span>📐 計劃 (${matchedPlan.charts.length}圖)</span>`;
+        if (lvBtn) lvBtn.style.opacity = (matchedPlan.levels && matchedPlan.levels.length > 0) ? '1' : '0.45';
+      } else {
+        if (planBtn) planBtn.innerHTML = `<span class="opacity-50">📐 無計劃</span>`;
+        if (lvBtn) lvBtn.style.opacity = '0.35';
+      }
+
       renderViewport();
       loadReviewForCurrentTrade();
     }
@@ -1660,7 +1829,23 @@
         svg.push(`<rect x="${(x_center - bar_w / 2).toFixed(1)}" y="${body_top.toFixed(1)}" width="${bar_w.toFixed(1)}" height="${body_h.toFixed(1)}" fill="${color}" stroke="${color}" stroke-width="0.5"/>`);
       });
 
-      const in_x = tsToX(trade.in_ts);
+      if (showPlanLevelsOnChart) {
+        const plan = getPlanForTrade(currentSelectedDate, trade.sym);
+        if (plan && plan.levels) {
+          plan.levels.forEach(lv => {
+            if (lv.price >= min_p && lv.price <= max_p) {
+              const ly = priceToY(lv.price);
+              const dash = lv.style === 'dotted' ? '2 3' : (lv.style === 'dashed' ? '6 4' : '0');
+              svg.push(`<line x1="${margin_left}" y1="${ly.toFixed(1)}" x2="${width - margin_right}" y2="${ly.toFixed(1)}" stroke="${lv.color}" stroke-width="1.3" stroke-dasharray="${dash}" opacity="0.85"/>`);
+              const lblW = lv.label.length * 6.2 + 12;
+              svg.push(`<rect x="${margin_left + 4}" y="${(ly - 14).toFixed(1)}" width="${lblW.toFixed(0)}" height="14" rx="3" fill="#0b0e14" fill-opacity="0.85" stroke="${lv.color}" stroke-width="0.6"/>`);
+              svg.push(`<text x="${margin_left + 10}" y="${(ly - 4).toFixed(1)}" fill="${lv.color}" font-size="9.5" font-weight="bold" font-family="monospace">${lv.label}</text>`);
+            }
+          });
+        }
+      }
+
+            const in_x = tsToX(trade.in_ts);
       const out_x = tsToX(trade.out_ts);
       const in_y = priceToY(trade.in_price);
       const out_y = priceToY(trade.out_price);
@@ -1707,7 +1892,9 @@
       if (!trade) return;
       const vp = document.getElementById('chart-viewport');
 
-      if (currentTf === 'all') {
+      if (currentTf === 'plan') {
+        vp.innerHTML = renderPlanViewer(trade);
+      } else if (currentTf === 'all') {
         vp.innerHTML = `
           <div class="w-full h-full overflow-y-auto space-y-4 p-2">
             <div>${renderTradeSvg(trade, '15m')}</div>
@@ -1726,5 +1913,14 @@
     renderDateSelectorPills();
     if (currentSelectedDate) loadDate(currentSelectedDate);
   </script>
+
+  <!-- Fullscreen Lightbox for Notion TV Plan Charts -->
+  <div id="plan-lightbox" onclick="closePlanLightbox()" class="hidden fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4 cursor-zoom-out">
+    <div class="w-full max-w-6xl flex items-center justify-between mb-2 text-xs text-gray-300">
+      <span id="lightbox-caption" class="font-bold text-white"></span>
+      <span class="px-2.5 py-1 rounded-lg bg-white/10 text-gray-200">點擊任意位置關閉 (ESC)</span>
+    </div>
+    <img id="lightbox-img" src="" class="max-w-full max-h-[88vh] rounded-xl border border-[#2b354d] shadow-2xl object-contain" />
+  </div>
 </body>
 </html>
