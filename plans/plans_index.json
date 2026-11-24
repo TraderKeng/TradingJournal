@@ -947,5 +947,95 @@
       ],
       "levels": []
     }
+  },
+  "2026-11-24": {
+    "NQ": {
+      "title": "NQ | 2026-11-24 (TUE) Plan",
+      "created_hkt": "2026-11-24 19:51 HKT",
+      "notion_url": "https://app.notion.com/p/42268cfb782b815f9917c82461370693",
+      "charts": [
+        {
+          "id": "c1",
+          "label": "Monthly",
+          "src": "plans/2026-11-24/NQ/1_Monthly.png",
+          "tv": "https://www.tradingview.com/x/jaqIyJBd/"
+        },
+        {
+          "id": "c2",
+          "label": "Weekly",
+          "src": "plans/2026-11-24/NQ/2_Weekly.png",
+          "tv": "https://www.tradingview.com/x/uKMuYfGl/"
+        },
+        {
+          "id": "c3",
+          "label": "Daily",
+          "src": "plans/2026-11-24/NQ/3_Daily.png",
+          "tv": "https://www.tradingview.com/x/2iZpYOqn/"
+        },
+        {
+          "id": "c4",
+          "label": "Hourly",
+          "src": "plans/2026-11-24/NQ/4_Hourly.png",
+          "tv": "https://www.tradingview.com/x/agQ0etSx/"
+        },
+        {
+          "id": "c5",
+          "label": "15m RTH",
+          "src": "plans/2026-11-24/NQ/5_15m_RTH.png",
+          "tv": "https://www.tradingview.com/x/awkj0Lfw/"
+        },
+        {
+          "id": "c6",
+          "label": "15m ETH",
+          "src": "plans/2026-11-24/NQ/6_15m_ETH.png",
+          "tv": "https://www.tradingview.com/x/MeKeRnAL/"
+        },
+        {
+          "id": "c7",
+          "label": "Update",
+          "src": "plans/2026-11-24/NQ/7_Update.png",
+          "tv": "https://www.tradingview.com/x/avId7CZ0/"
+        }
+      ],
+      "levels": []
+    },
+    "GC": {
+      "title": "GC | 2026-11-24 (TUE) Plan",
+      "created_hkt": "2026-11-24 06:44 HKT",
+      "notion_url": "https://app.notion.com/p/42168cfb782b8133951cf5c552ccaa59",
+      "charts": [
+        {
+          "id": "c1",
+          "label": "Monthly",
+          "src": "plans/2026-11-24/GC/1_Monthly.png",
+          "tv": "https://www.tradingview.com/x/ISq4VV6R/"
+        },
+        {
+          "id": "c2",
+          "label": "Weekly",
+          "src": "plans/2026-11-24/GC/2_Weekly.png",
+          "tv": "https://www.tradingview.com/x/PraGZKbo/"
+        },
+        {
+          "id": "c3",
+          "label": "Daily",
+          "src": "plans/2026-11-24/GC/3_Daily.png",
+          "tv": "https://www.tradingview.com/x/XrmcKkau/"
+        },
+        {
+          "id": "c4",
+          "label": "Hourly",
+          "src": "plans/2026-11-24/GC/4_Hourly.png",
+          "tv": "https://www.tradingview.com/x/vAbUyYDc/"
+        },
+        {
+          "id": "c5",
+          "label": "15m",
+          "src": "plans/2026-11-24/GC/5_15m.png",
+          "tv": "https://www.tradingview.com/x/46i33ERU/"
+        }
+      ],
+      "levels": []
+    }
   }
 }
