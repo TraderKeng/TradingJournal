@@ -1037,5 +1037,71 @@
       ],
       "levels": []
     }
+  },
+  "2026-11-25": {
+    "NQ": {
+      "title": "NQ | 2026-11-25 (WED) Plan",
+      "created_hkt": "2026-11-25 22:05 HKT",
+      "notion_url": "https://app.notion.com/p/42368cfb782b81e9b383f4c0b242b725",
+      "charts": [
+        {
+          "id": "c1",
+          "label": "Hourly",
+          "src": "plans/2026-11-25/NQ/1_Hourly.png",
+          "tv": "https://www.tradingview.com/x/rzqoSyoi/"
+        },
+        {
+          "id": "c2",
+          "label": "15m RTH",
+          "src": "plans/2026-11-25/NQ/2_15m_RTH.png",
+          "tv": "https://www.tradingview.com/x/BOPypmqM/"
+        },
+        {
+          "id": "c3",
+          "label": "15m ETH",
+          "src": "plans/2026-11-25/NQ/3_15m_ETH.png",
+          "tv": "https://www.tradingview.com/x/hLzRb5Na/"
+        }
+      ],
+      "levels": []
+    },
+    "GC": {
+      "title": "GC | 2026-11-25 (WED) Plan",
+      "created_hkt": "2026-11-25 07:01 HKT",
+      "notion_url": "https://app.notion.com/p/42268cfb782b81a98f20ca343b239d38",
+      "charts": [
+        {
+          "id": "c1",
+          "label": "Monthly",
+          "src": "plans/2026-11-25/GC/1_Monthly.png",
+          "tv": "https://www.tradingview.com/x/WLqPm87y/"
+        },
+        {
+          "id": "c2",
+          "label": "Weekly",
+          "src": "plans/2026-11-25/GC/2_Weekly.png",
+          "tv": "https://www.tradingview.com/x/WLqPm87y/"
+        },
+        {
+          "id": "c3",
+          "label": "Daily",
+          "src": "plans/2026-11-25/GC/3_Daily.png",
+          "tv": "https://www.tradingview.com/x/KqVriXnc/"
+        },
+        {
+          "id": "c4",
+          "label": "Hourly",
+          "src": "plans/2026-11-25/GC/4_Hourly.png",
+          "tv": "https://www.tradingview.com/x/tYGFb0YP/"
+        },
+        {
+          "id": "c5",
+          "label": "15m",
+          "src": "plans/2026-11-25/GC/5_15m.png",
+          "tv": "https://www.tradingview.com/x/8zBlUWOE/"
+        }
+      ],
+      "levels": []
+    }
   }
 }
