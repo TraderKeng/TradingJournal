@@ -41,7 +41,18 @@ MULTIPLIERS = {
 # Round-trip commission per contract (USD)
 COMMISSION_PER_CONTRACT = {
     "MNQ": 1.00,
-    "MGC": 1.60,
+    "MGC": 1.625,
+    "6B":  5.00,
+}
+
+PRICE_DECIMALS = {
+    "6B": 4,
+    "6E": 4,
+}
+
+# Known PropFirm account statuses (any future new Account ID auto-defaults to Active)
+ACCOUNT_STATUS_OVERRIDES = {
+    "LFF02567128570001": {"status": "breached", "tag": "Breached"},
 }
 
 WEEKDAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -103,24 +114,26 @@ def infer_multiplier(row) -> float:
 
 
 def match_trades(orders):
-    """FIFO round-trip matching per contract, grouping identical (entry_oid, exit_oid) lots."""
-    queues = defaultdict(list)  # contract -> list of dicts
+    """FIFO round-trip matching strictly isolated per (account, contract)."""
+    queues = defaultdict(list)
     raw_matches = []
 
     for r in orders:
+        acc = r.get("Account", "DEFAULT").strip() or "DEFAULT"
         contract = r["Contract"].strip()
         prod = r["Product"].strip()
-        side = r["B/S"].strip().upper()  # BUY / SELL
+        side = r["B/S"].strip().upper()
         qty = int(float(r["filledQty"].strip()))
-        price = round(float(r["decimalFillAvg"].strip()), 4)
+        price = round(float(r["decimalFillAvg"].strip()), 5)
         dt_hkt = parse_dt_hkt(r["Fill Time"])
         oid = r["orderId"].strip()
         mult = infer_multiplier(r)
 
-        q = queues[contract]
+        q = queues[(acc, contract)]
         for _ in range(qty):
             if not q or q[0]["side"] == side:
                 q.append({
+                    "acc": acc,
                     "oid": oid,
                     "side": side,
                     "price": price,
@@ -132,6 +145,7 @@ def match_trades(orders):
             else:
                 entry = q.pop(0)
                 raw_matches.append({
+                    "acc": acc,
                     "entry_oid": entry["oid"],
                     "exit_oid": oid,
                     "sym": prod,
@@ -145,21 +159,18 @@ def match_trades(orders):
                     "vol": 1,
                 })
 
-    # Group lots sharing the exact same (entry_oid, exit_oid) into one multi-contract trade
     grouped = []
     index_by_pair = {}
     for m in raw_matches:
-        key = (m["entry_oid"], m["exit_oid"])
+        key = (m["acc"], m["entry_oid"], m["exit_oid"])
         if key in index_by_pair:
             grouped[index_by_pair[key]]["vol"] += 1
         else:
             index_by_pair[key] = len(grouped)
             grouped.append(m)
 
-    # Sort matched trades chronologically by entry time, then exit time
     grouped.sort(key=lambda t: (t["in_dt"], t["out_dt"]))
 
-    # Finalize fields
     trades = []
     for m in grouped:
         vol = m["vol"]
@@ -167,6 +178,7 @@ def match_trades(orders):
         out_p = m["out_price"]
         mult = m["mult"]
         sym = m["sym"]
+        dec = PRICE_DECIMALS.get(sym, 2)
 
         if m["side"] == "BUY":
             gross_pnl = (out_p - in_p) * mult * vol
@@ -176,19 +188,20 @@ def match_trades(orders):
         comm_rate = COMMISSION_PER_CONTRACT.get(sym, 0.0)
         commission = round(comm_rate * vol, 2)
         net_pnl = round(gross_pnl - commission, 2)
-        pts_diff = round(abs(out_p - in_p), 2)
+        pts_diff = round(abs(out_p - in_p), dec)
 
         sess_code, sess_name = classify_session(m["in_dt"])
         date_key = m["out_dt"].strftime("%Y-%m-%d")
 
         trades.append({
+            "account": m["acc"],
             "date_key": date_key,
             "sym": sym,
             "contract": m["contract"],
             "side": m["side"],
             "vol": vol,
-            "in_price": round(in_p, 2),
-            "out_price": round(out_p, 2),
+            "in_price": round(in_p, dec),
+            "out_price": round(out_p, dec),
             "pts_diff": pts_diff,
             "in_ts": int(m["in_dt"].timestamp() * 1000),
             "out_ts": int(m["out_dt"].timestamp() * 1000),
@@ -205,7 +218,7 @@ def match_trades(orders):
     return trades, queues
 
 
-def build_journal_db(trades, bars):
+def build_journal_db(trades, bars=None, account_label="ALL"):
     days_map = defaultdict(list)
     for t in trades:
         days_map[t["date_key"]].append(t)
@@ -263,7 +276,7 @@ def build_journal_db(trades, bars):
 
     summary = {
         "platform": "Tradovate",
-        "account": "LFF02567128570001",
+        "account": account_label,
         "month": latest_month,
         "months": all_months,
         "total_pnl": total_pnl,
@@ -278,11 +291,10 @@ def build_journal_db(trades, bars):
         "loss_trades": sum(d["loss_count"] for d in days.values()),
     }
 
-    return {
-        "summary": summary,
-        "days": days,
-        "bars": bars,
-    }
+    res = {"summary": summary, "days": days}
+    if bars is not None:
+        res["bars"] = bars
+    return res
 
 
 HTML_TEMPLATE = r"""<!DOCTYPE html>
@@ -381,11 +393,19 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <span>TraderKeng Trading Journal</span>
           <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Tradovate Futures</span>
         </h1>
-        <p class="text-[11px] text-[#8b9bb4]">Tradovate 期貨實盤日誌 (LFF02567128570001) ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.6</p>
+        <p id="header-account-subtitle" class="text-[11px] text-[#8b9bb4]">Tradovate 期貨實盤日誌 ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.625 / 6B $5</p>
       </div>
     </div>
 
     <div class="flex items-center gap-2 flex-wrap">
+      <!-- Multi-Account Switcher -->
+      <div class="flex items-center gap-1 bg-[#121824] px-2 py-1 rounded-xl border border-blue-500/35 text-xs font-semibold">
+        <span class="text-[10px] text-[#8b9bb4] hidden md:inline">帳號:</span>
+        <select id="account-selector" onchange="switchTradovateAccount(this.value)" class="bg-transparent text-white font-bold focus:outline-none cursor-pointer pr-1">
+          __ACCOUNT_OPTIONS_HTML__
+        </select>
+      </div>
+
       <!-- Platform Switcher (cTrader <-> Tradovate) -->
       <div class="flex items-center gap-1 bg-[#121824] p-1 rounded-xl border border-[#1e2638] text-xs font-semibold">
         <a href="../index.html" class="px-2.5 py-1.5 rounded-lg text-[#8b9bb4] hover:text-white transition-all">cTrader</a>
@@ -776,9 +796,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   <!-- JAVASCRIPT LOGIC & EMBEDDED DATA -->
   <script>
-    const journalDb = __JOURNAL_DB_JSON__;
+    const tradovateAccountsDb = __MULTI_ACCOUNTS_JSON__;
+    const sharedBarsDb = __SHARED_BARS_JSON__;
+    let currentAccountId = "__DEFAULT_ACCOUNT_ID__";
+    let journalDb = { ...tradovateAccountsDb[currentAccountId].data, bars: sharedBarsDb };
 
-    const allDatesSorted = Object.keys(journalDb.days).sort();
+    let allDatesSorted = Object.keys(journalDb.days).sort();
     let currentSelectedDate = allDatesSorted[allDatesSorted.length - 1] || '';
     let currentTradeId = 1;
     let currentTf = '1m';
@@ -1105,6 +1128,27 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     // ==========================================
     // 2. NAVIGATION VIEW SWITCHER
     // ==========================================
+    function switchTradovateAccount(accId) {
+      if (!tradovateAccountsDb[accId]) return;
+      currentAccountId = accId;
+      const entry = tradovateAccountsDb[accId];
+      journalDb = { ...entry.data, bars: sharedBarsDb };
+      allDatesSorted = Object.keys(journalDb.days).sort();
+      DEFAULT_MONTH = journalDb.summary.month || '2026-11';
+      currentCalendarMonth = DEFAULT_MONTH;
+      currentOverviewScope = DEFAULT_MONTH;
+      currentSelectedDate = allDatesSorted[allDatesSorted.length - 1] || '';
+
+      const subEl = document.getElementById('header-account-subtitle');
+      if (subEl) {
+        subEl.innerText = `Tradovate 期貨實盤日誌 (${entry.meta.label}) ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.625 / 6B $5`;
+      }
+      renderMonthSwitcher();
+      renderMonthlyOverview();
+      renderDateSelectorPills();
+      if (currentSelectedDate) loadDate(currentSelectedDate);
+    }
+
     function showView(viewName) {
       if (viewName === 'calendar') {
         document.getElementById('view-calendar').classList.remove('hidden');
@@ -1120,7 +1164,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     const MONTH_NAMES_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const DEFAULT_MONTH = journalDb.summary.month || '2026-11';
+    let DEFAULT_MONTH = journalDb.summary.month || '2026-11';
 
     function stepCalendarMonth(delta) {
       const [y, m] = currentCalendarMonth.split('-').map(Number);
@@ -2056,7 +2100,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
       let min_p = Math.min(...bars.map(b => b[3]), trade.in_price, trade.out_price);
       let max_p = Math.max(...bars.map(b => b[2]), trade.in_price, trade.out_price);
-      const pad = Math.max((max_p - min_p) * 0.15, 0.5);
+      const pad = Math.max((max_p - min_p) * 0.15, max_p < 10 ? 0.0005 : 0.5);
       min_p -= pad;
       max_p += pad;
       const p_range = max_p - min_p;
@@ -2086,7 +2130,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         const pr = min_p + (p_range / 5) * i;
         const y = priceToY(pr);
         svg.push(`<line x1="${margin_left}" y1="${y.toFixed(1)}" x2="${width - margin_right}" y2="${y.toFixed(1)}" stroke="#1e222d" stroke-width="1" stroke-dasharray="3 3"/>`);
-        svg.push(`<text x="${width - margin_right + 8}" y="${(y + 4).toFixed(1)}" fill="#787b86" font-size="10" font-family="monospace">${pr.toFixed(2)}</text>`);
+        svg.push(`<text x="${width - margin_right + 8}" y="${(y + 4).toFixed(1)}" fill="#787b86" font-size="10" font-family="monospace">${pr < 10 ? pr.toFixed(4) : pr.toFixed(2)}</text>`);
       }
 
       const label_step = Math.max(1, Math.floor(bars.length / 6));
@@ -2195,6 +2239,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     // Init App
+    (function initSubtitle() {
+      const entry = tradovateAccountsDb[currentAccountId];
+      const subEl = document.getElementById('header-account-subtitle');
+      if (entry && subEl) {
+        subEl.innerText = `Tradovate 期貨實盤日誌 (${entry.meta.label}) ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.625 / 6B $5`;
+      }
+    })();
     renderMonthSwitcher();
     renderMonthlyOverview();
     renderDateSelectorPills();
@@ -2226,29 +2277,71 @@ def main():
     with open(BARS_CACHE_PATH, "r", encoding="utf-8") as f:
         bars = json.load(f)
 
-    journal_db = build_journal_db(trades, bars)
+    # Discover accounts in chronological order of first trade
+    acc_first_ts = {}
+    for t in trades:
+        a = t["account"]
+        if a not in acc_first_ts or t["in_ts"] < acc_first_ts[a]:
+            acc_first_ts[a] = t["in_ts"]
+    ordered_accs = sorted(acc_first_ts.keys(), key=lambda a: acc_first_ts[a])
 
+    # Build multi-account store (newest active account selected by default)
+    multi_accounts = {}
+    option_lines = []
+    default_acc_id = ordered_accs[-1] if ordered_accs else "ALL"
+
+    # Put newest accounts first in dropdown
+    for rev_idx, acc_id in enumerate(reversed(ordered_accs)):
+        seq_num = len(ordered_accs) - rev_idx
+        override = ACCOUNT_STATUS_OVERRIDES.get(acc_id, {"status": "active", "tag": "Active"})
+        status = override["status"]
+        tag = override["tag"]
+        icon = "🔴" if status == "breached" else "🟢"
+        short_id = f"{acc_id[:6]}...{acc_id[-4:]}" if len(acc_id) > 12 else acc_id
+        label = f"#{seq_num} · {short_id} ({tag})"
+        acc_trades = [t for t in trades if t["account"] == acc_id]
+        multi_accounts[acc_id] = {
+            "meta": {"id": acc_id, "label": label, "status": status},
+            "data": build_journal_db(acc_trades, bars=None, account_label=acc_id),
+        }
+        color_cls = "text-rose-400" if status == "breached" else "text-emerald-400"
+        option_lines.append(f'<option value="{acc_id}" class="bg-[#121824] {color_cls}">{icon} {label}</option>')
+
+    all_db = build_journal_db(trades, bars=None, account_label="ALL")
+    multi_accounts["ALL"] = {
+        "meta": {"id": "ALL", "label": "全部帳號合計 (All)", "status": "all"},
+        "data": all_db,
+    }
+    option_lines.append('<option value="ALL" class="bg-[#121824] text-blue-300">📊 全部帳號合計 (All)</option>')
+
+    full_export = {
+        "default_account": default_acc_id,
+        "accounts": multi_accounts,
+        "bars": bars,
+    }
     with open(DATA_JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(journal_db, f, ensure_ascii=False, indent=2)
+        json.dump(full_export, f, ensure_ascii=False, indent=2)
 
-    compact_json = json.dumps(journal_db, ensure_ascii=False, separators=(",", ":"))
     plans_db = {}
     if os.path.exists(PLANS_INDEX_PATH):
         with open(PLANS_INDEX_PATH, "r", encoding="utf-8") as pf:
             plans_db = json.load(pf)
-    compact_plans = json.dumps(plans_db, ensure_ascii=False, separators=(",", ":"))
-    html_out = HTML_TEMPLATE.replace("__JOURNAL_DB_JSON__", compact_json).replace("__DAILY_PLANS_JSON__", compact_plans)
+
+    html_out = (
+        HTML_TEMPLATE
+        .replace("__ACCOUNT_OPTIONS_HTML__", "\n          ".join(option_lines))
+        .replace("__DEFAULT_ACCOUNT_ID__", default_acc_id)
+        .replace("__MULTI_ACCOUNTS_JSON__", json.dumps(multi_accounts, ensure_ascii=False, separators=(",", ":")))
+        .replace("__SHARED_BARS_JSON__", json.dumps(bars, ensure_ascii=False, separators=(",", ":")))
+        .replace("__DAILY_PLANS_JSON__", json.dumps(plans_db, ensure_ascii=False, separators=(",", ":")))
+    )
     with open(HTML_OUT_PATH, "w", encoding="utf-8") as f:
         f.write(html_out)
 
-    s = journal_db["summary"]
-    print("=== Tradovate Dashboard Build Summary ===")
-    print(f"Trading Days  : {s['trading_days']} ({s['win_days']}W / {s['loss_days']}L)")
-    print(f"Total Trades  : {s['total_trades']} ({s['win_trades']}W / {s['loss_trades']}L), Total Contracts: {s['total_contracts']}")
-    print(f"Gross P&L     : ${s['total_gross_pnl']:+.2f}")
-    print(f"Est. Comm     : -${s['total_commission']:.2f}")
-    print(f"Net P&L       : ${s['total_pnl']:+.2f}")
-    print(f"Months        : {', '.join(s['months'])}")
+    print("=== Tradovate Multi-Account Dashboard Build Summary ===")
+    for acc_id, entry in multi_accounts.items():
+        s = entry["data"]["summary"]
+        print(f"  [{entry['meta']['label']}] Days={s['trading_days']} | Trades={s['total_trades']} ({s['total_contracts']}口) | Gross=${s['total_gross_pnl']:+.2f} | Comm=-${s['total_commission']:.2f} | Net=${s['total_pnl']:+.2f}")
     print(f"Data JSON     : {DATA_JSON_PATH} ({os.path.getsize(DATA_JSON_PATH)/1024/1024:.2f} MB)")
     print(f"Dashboard HTML: {HTML_OUT_PATH} ({os.path.getsize(HTML_OUT_PATH)/1024/1024:.2f} MB)")
 
