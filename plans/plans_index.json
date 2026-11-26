@@ -1103,5 +1103,45 @@
       ],
       "levels": []
     }
+  },
+  "2026-11-26": {
+    "GC": {
+      "title": "GC | 2026-11-26 (THU) Plan",
+      "created_hkt": "2026-11-26",
+      "notion_url": "https://app.notion.com/p/42368cfb782b81398565c82b4788c566",
+      "charts": [
+        {
+          "id": "c1",
+          "label": "Monthly",
+          "src": "plans/2026-11-26/GC/1_Monthly.png",
+          "tv": "https://www.tradingview.com/x/CEdEHy4N/"
+        },
+        {
+          "id": "c2",
+          "label": "Weekly",
+          "src": "plans/2026-11-26/GC/2_Weekly.png",
+          "tv": "https://www.tradingview.com/x/ZyrWGmik/"
+        },
+        {
+          "id": "c3",
+          "label": "Daily",
+          "src": "plans/2026-11-26/GC/3_Daily.png",
+          "tv": "https://www.tradingview.com/x/faD9MLfb/"
+        },
+        {
+          "id": "c4",
+          "label": "Hourly",
+          "src": "plans/2026-11-26/GC/4_Hourly.png",
+          "tv": "https://www.tradingview.com/x/ko2vvDZP/"
+        },
+        {
+          "id": "c5",
+          "label": "15m",
+          "src": "plans/2026-11-26/GC/5_15m.png",
+          "tv": "https://www.tradingview.com/x/b3CKa9Bs/"
+        }
+      ],
+      "levels": []
+    }
   }
 }
