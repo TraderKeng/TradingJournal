@@ -1143,5 +1143,51 @@
       ],
       "levels": []
     }
+  },
+  "2026-11-27": {
+    "GC": {
+      "title": "GC | 2026-11-27 (FRI) Plan",
+      "created_hkt": "2026-11-27",
+      "notion_url": "https://app.notion.com/p/42468cfb782b813bb9b6e1adad5384c9",
+      "charts": [
+        {
+          "id": "c1",
+          "label": "Monthly",
+          "src": "plans/2026-11-27/GC/1_Monthly.png",
+          "tv": "https://www.tradingview.com/x/M4IxnczM/"
+        },
+        {
+          "id": "c2",
+          "label": "Weekly",
+          "src": "plans/2026-11-27/GC/2_Weekly.png",
+          "tv": "https://www.tradingview.com/x/GZRyBii6/"
+        },
+        {
+          "id": "c3",
+          "label": "Daily",
+          "src": "plans/2026-11-27/GC/3_Daily.png",
+          "tv": "https://www.tradingview.com/x/vo7JG7VY/"
+        },
+        {
+          "id": "c4",
+          "label": "Chart 4",
+          "src": "plans/2026-11-27/GC/4_Chart_4.png",
+          "tv": "https://www.tradingview.com/x/VKuC1zXO/"
+        },
+        {
+          "id": "c5",
+          "label": "Hourly",
+          "src": "plans/2026-11-27/GC/5_Hourly.png",
+          "tv": "https://www.tradingview.com/x/fIUNR9IX/"
+        },
+        {
+          "id": "c6",
+          "label": "15m",
+          "src": "plans/2026-11-27/GC/6_15m.png",
+          "tv": "https://www.tradingview.com/x/nUTJn1PB/"
+        }
+      ],
+      "levels": []
+    }
   }
 }
