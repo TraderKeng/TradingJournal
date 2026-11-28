@@ -6,9 +6,9 @@
     "trading_days": 20,
     "win_days": 10,
     "loss_days": 10,
-    "total_trades": 161,
-    "win_trades": 60,
-    "loss_trades": 101
+    "total_trades": 152,
+    "win_trades": 54,
+    "loss_trades": 98
   },
   "days": {
     "2026-11-18": {
@@ -555,12 +555,12 @@
       "day_of_week": "Tue",
       "net_pnl": -12.6,
       "is_win": false,
-      "trades_count": 8,
-      "win_count": 3,
+      "trades_count": 7,
+      "win_count": 2,
       "loss_count": 5,
-      "win_rate": 37.5,
-      "profit_factor": 0.15,
-      "payoff": 0.25,
+      "win_rate": 28.6,
+      "profit_factor": 0.09,
+      "payoff": 0.22,
       "trades": [
         {
           "id": 1,
@@ -668,35 +668,34 @@
           "id": 7,
           "sym": "XAUUSD",
           "side": "SELL",
-          "vol": 1000,
+          "vol": 2000,
           "in_price": 3903.61,
-          "out_price": 3903.43,
-          "pts_diff": 0.18,
-          "in_ts": 1793697094368,
-          "out_ts": 1793697115052,
-          "in_time": "17:11:34",
-          "out_time": "17:11:55",
-          "pnl": 0.98,
-          "isWin": true,
-          "session_code": "london",
-          "session_name": "歐盤 (NY 02:00-05:00)"
-        },
-        {
-          "id": 8,
-          "sym": "XAUUSD",
-          "side": "SELL",
-          "vol": 1000,
-          "in_price": 3903.61,
-          "out_price": 3905.52,
-          "pts_diff": 1.91,
+          "out_price": 3904.47,
+          "pts_diff": 0.86,
           "in_ts": 1793697094368,
           "out_ts": 1793702970288,
           "in_time": "17:11:34",
           "out_time": "18:49:30",
-          "pnl": -1.98,
+          "pnl": -1.0,
           "isWin": false,
           "session_code": "london",
-          "session_name": "歐盤 (NY 02:00-05:00)"
+          "session_name": "歐盤 (NY 02:00-05:00)",
+          "exits": [
+            {
+              "out_price": 3903.43,
+              "out_ts": 1793697115052,
+              "out_time": "17:11:55",
+              "vol": 1000,
+              "pnl": 0.98
+            },
+            {
+              "out_price": 3905.52,
+              "out_ts": 1793702970288,
+              "out_time": "18:49:30",
+              "vol": 1000,
+              "pnl": -1.98
+            }
+          ]
         }
       ]
     },
@@ -2297,12 +2296,12 @@
       "day_of_week": "Tue",
       "net_pnl": 29.6,
       "is_win": true,
-      "trades_count": 6,
-      "win_count": 4,
+      "trades_count": 5,
+      "win_count": 3,
       "loss_count": 2,
-      "win_rate": 66.7,
+      "win_rate": 60.0,
       "profit_factor": 4.82,
-      "payoff": 2.41,
+      "payoff": 3.22,
       "trades": [
         {
           "id": 1,
@@ -2325,38 +2324,37 @@
           "id": 2,
           "sym": "HK50",
           "side": "SELL",
-          "vol": 60,
+          "vol": 130,
           "in_price": 22489.0,
-          "out_price": 22391.1,
-          "pts_diff": 97.9,
-          "in_ts": 1795485415600,
-          "out_ts": 1795486015481,
-          "in_time": "09:56:55",
-          "out_time": "10:06:55",
-          "pnl": 7.49,
-          "isWin": true,
-          "session_code": "asia",
-          "session_name": "亞盤 (09:00-11:00)"
-        },
-        {
-          "id": 3,
-          "sym": "HK50",
-          "side": "SELL",
-          "vol": 70,
-          "in_price": 22489.0,
-          "out_price": 22408.6,
-          "pts_diff": 80.4,
+          "out_price": 22400.52,
+          "pts_diff": 88.48,
           "in_ts": 1795485415600,
           "out_ts": 1795486213809,
           "in_time": "09:56:55",
           "out_time": "10:10:13",
-          "pnl": 7.18,
+          "pnl": 14.67,
           "isWin": true,
           "session_code": "asia",
-          "session_name": "亞盤 (09:00-11:00)"
+          "session_name": "亞盤 (09:00-11:00)",
+          "exits": [
+            {
+              "out_price": 22391.1,
+              "out_ts": 1795486015481,
+              "out_time": "10:06:55",
+              "vol": 60,
+              "pnl": 7.49
+            },
+            {
+              "out_price": 22408.6,
+              "out_ts": 1795486213809,
+              "out_time": "10:10:13",
+              "vol": 70,
+              "pnl": 7.18
+            }
+          ]
         },
         {
-          "id": 4,
+          "id": 3,
           "sym": "XAUUSD",
           "side": "BUY",
           "vol": 100,
@@ -2373,7 +2371,7 @@
           "session_name": "歐盤 (NY 02:00-05:00)"
         },
         {
-          "id": 5,
+          "id": 4,
           "sym": "XAUUSD",
           "side": "BUY",
           "vol": 100,
@@ -2390,7 +2388,7 @@
           "session_name": "歐盤 (NY 02:00-05:00)"
         },
         {
-          "id": 6,
+          "id": 5,
           "sym": "NAS100",
           "side": "SELL",
           "vol": 10,
@@ -2414,46 +2412,62 @@
       "day_of_week": "Wed",
       "net_pnl": -20.4,
       "is_win": false,
-      "trades_count": 17,
-      "win_count": 7,
-      "loss_count": 10,
-      "win_rate": 41.2,
-      "profit_factor": 0.64,
-      "payoff": 0.91,
+      "trades_count": 12,
+      "win_count": 4,
+      "loss_count": 8,
+      "win_rate": 33.3,
+      "profit_factor": 0.63,
+      "payoff": 1.27,
       "trades": [
         {
-          "sym": "HK50",
-          "side": "BUY",
-          "vol": 90,
-          "in_price": 22368.1,
-          "out_price": 22352.1,
-          "pts_diff": 16.0,
-          "in_ts": 1795571068746,
-          "out_ts": 1795571373583,
-          "in_time": "09:44:28",
-          "out_time": "09:49:33",
-          "pnl": -1.84,
-          "isWin": false,
-          "session_code": "asia",
-          "session_name": "亞盤 (09:00-11:00)",
+          "sym": "GBPUSD",
+          "side": "SELL",
+          "vol": 200000,
+          "in_price": 1.3105,
+          "out_price": 1.3074,
+          "pts_diff": 0.0031,
+          "in_ts": 1795525595325,
+          "out_ts": 1795624397380,
+          "in_time": "21:06:35",
+          "out_time": "00:33:17",
+          "pnl": 6.06,
+          "isWin": true,
+          "session_code": "premarket",
+          "session_name": "PreMarket (NY 07:00-09:00)",
           "id": 1
         },
         {
           "sym": "HK50",
           "side": "BUY",
-          "vol": 90,
+          "vol": 180,
           "in_price": 22368.1,
-          "out_price": 22333.1,
-          "pts_diff": 35.0,
+          "out_price": 22342.6,
+          "pts_diff": 25.5,
           "in_ts": 1795571068746,
           "out_ts": 1795571509101,
           "in_time": "09:44:28",
           "out_time": "09:51:49",
-          "pnl": -4.02,
+          "pnl": -5.86,
           "isWin": false,
           "session_code": "asia",
           "session_name": "亞盤 (09:00-11:00)",
-          "id": 2
+          "id": 2,
+          "exits": [
+            {
+              "out_price": 22352.1,
+              "out_ts": 1795571373583,
+              "out_time": "09:49:33",
+              "vol": 90,
+              "pnl": -1.84
+            },
+            {
+              "out_price": 22333.1,
+              "out_ts": 1795571509101,
+              "out_time": "09:51:49",
+              "vol": 90,
+              "pnl": -4.02
+            }
+          ]
         },
         {
           "sym": "HK50",
@@ -2475,36 +2489,35 @@
         {
           "sym": "HK50",
           "side": "SELL",
-          "vol": 70,
+          "vol": 100,
           "in_price": 22403.5,
-          "out_price": 22329.1,
-          "pts_diff": 74.4,
-          "in_ts": 1795574536504,
-          "out_ts": 1795576187573,
-          "in_time": "10:42:16",
-          "out_time": "11:09:47",
-          "pnl": 6.64,
-          "isWin": true,
-          "session_code": "asia",
-          "session_name": "亞盤 (09:00-11:00)",
-          "id": 4
-        },
-        {
-          "sym": "HK50",
-          "side": "SELL",
-          "vol": 30,
-          "in_price": 22403.5,
-          "out_price": 22278.2,
-          "pts_diff": 125.3,
+          "out_price": 22313.83,
+          "pts_diff": 89.67,
           "in_ts": 1795574536504,
           "out_ts": 1795578126674,
           "in_time": "10:42:16",
           "out_time": "11:42:06",
-          "pnl": 4.79,
+          "pnl": 11.43,
           "isWin": true,
           "session_code": "asia",
           "session_name": "亞盤 (09:00-11:00)",
-          "id": 5
+          "id": 4,
+          "exits": [
+            {
+              "out_price": 22329.1,
+              "out_ts": 1795576187573,
+              "out_time": "11:09:47",
+              "vol": 70,
+              "pnl": 6.64
+            },
+            {
+              "out_price": 22278.2,
+              "out_ts": 1795578126674,
+              "out_time": "11:42:06",
+              "vol": 30,
+              "pnl": 4.79
+            }
+          ]
         },
         {
           "sym": "HK50",
@@ -2521,41 +2534,40 @@
           "isWin": false,
           "session_code": "other",
           "session_name": "其它時段",
-          "id": 6
+          "id": 5
         },
         {
           "sym": "HK50",
           "side": "BUY",
-          "vol": 140,
+          "vol": 280,
           "in_price": 22110.8,
-          "out_price": 22101.5,
-          "pts_diff": 9.3,
-          "in_ts": 1795587160371,
-          "out_ts": 1795587309425,
-          "in_time": "14:12:40",
-          "out_time": "14:15:09",
-          "pnl": -1.66,
-          "isWin": false,
-          "session_code": "other",
-          "session_name": "其它時段",
-          "id": 7
-        },
-        {
-          "sym": "HK50",
-          "side": "BUY",
-          "vol": 140,
-          "in_price": 22110.8,
-          "out_price": 22088.6,
-          "pts_diff": 22.2,
+          "out_price": 22095.05,
+          "pts_diff": 15.75,
           "in_ts": 1795587160371,
           "out_ts": 1795587337121,
           "in_time": "14:12:40",
           "out_time": "14:15:37",
-          "pnl": -3.97,
+          "pnl": -5.63,
           "isWin": false,
           "session_code": "other",
           "session_name": "其它時段",
-          "id": 8
+          "id": 6,
+          "exits": [
+            {
+              "out_price": 22101.5,
+              "out_ts": 1795587309425,
+              "out_time": "14:15:09",
+              "vol": 140,
+              "pnl": -1.66
+            },
+            {
+              "out_price": 22088.6,
+              "out_ts": 1795587337121,
+              "out_time": "14:15:37",
+              "vol": 140,
+              "pnl": -3.97
+            }
+          ]
         },
         {
           "sym": "HK50",
@@ -2572,24 +2584,40 @@
           "isWin": true,
           "session_code": "other",
           "session_name": "其它時段",
-          "id": 9
+          "id": 7
         },
         {
           "sym": "HK50",
           "side": "BUY",
-          "vol": 100,
+          "vol": 190,
           "in_price": 22037.1,
-          "out_price": 22041,
-          "pts_diff": 3.9,
+          "out_price": 22012.86,
+          "pts_diff": 24.24,
           "in_ts": 1795590321275,
-          "out_ts": 1795590356909,
+          "out_ts": 1795591132984,
           "in_time": "15:05:21",
-          "out_time": "15:05:56",
-          "pnl": 0.5,
-          "isWin": true,
+          "out_time": "15:18:52",
+          "pnl": -5.87,
+          "isWin": false,
           "session_code": "london",
           "session_name": "歐盤 (NY 02:00-05:00)",
-          "id": 10
+          "id": 8,
+          "exits": [
+            {
+              "out_price": 22041,
+              "out_ts": 1795590356909,
+              "out_time": "15:05:56",
+              "vol": 100,
+              "pnl": 0.5
+            },
+            {
+              "out_price": 21981.6,
+              "out_ts": 1795591132984,
+              "out_time": "15:18:52",
+              "vol": 90,
+              "pnl": -6.37
+            }
+          ]
         },
         {
           "sym": "HK50",
@@ -2606,58 +2634,40 @@
           "isWin": false,
           "session_code": "london",
           "session_name": "歐盤 (NY 02:00-05:00)",
-          "id": 11
-        },
-        {
-          "sym": "HK50",
-          "side": "BUY",
-          "vol": 90,
-          "in_price": 22037.1,
-          "out_price": 21981.6,
-          "pts_diff": 55.5,
-          "in_ts": 1795590321275,
-          "out_ts": 1795591132984,
-          "in_time": "15:05:21",
-          "out_time": "15:18:52",
-          "pnl": -6.37,
-          "isWin": false,
-          "session_code": "london",
-          "session_name": "歐盤 (NY 02:00-05:00)",
-          "id": 12
+          "id": 9
         },
         {
           "sym": "XAUUSD",
           "side": "SELL",
-          "vol": 100,
+          "vol": 200,
           "in_price": 3535.15,
-          "out_price": 3527.62,
-          "pts_diff": 7.53,
-          "in_ts": 1795596931574,
-          "out_ts": 1795599115686,
-          "in_time": "16:55:31",
-          "out_time": "17:31:55",
-          "pnl": 7.45,
-          "isWin": true,
-          "session_code": "london",
-          "session_name": "歐盤 (NY 02:00-05:00)",
-          "id": 13
-        },
-        {
-          "sym": "XAUUSD",
-          "side": "SELL",
-          "vol": 100,
-          "in_price": 3535.15,
-          "out_price": 3530.97,
-          "pts_diff": 4.18,
+          "out_price": 3529.3,
+          "pts_diff": 5.85,
           "in_ts": 1795596931574,
           "out_ts": 1795600806519,
           "in_time": "16:55:31",
           "out_time": "18:00:06",
-          "pnl": 4.11,
+          "pnl": 11.56,
           "isWin": true,
           "session_code": "london",
           "session_name": "歐盤 (NY 02:00-05:00)",
-          "id": 14
+          "id": 10,
+          "exits": [
+            {
+              "out_price": 3527.62,
+              "out_ts": 1795599115686,
+              "out_time": "17:31:55",
+              "vol": 100,
+              "pnl": 7.45
+            },
+            {
+              "out_price": 3530.97,
+              "out_ts": 1795600806519,
+              "out_time": "18:00:06",
+              "vol": 100,
+              "pnl": 4.11
+            }
+          ]
         },
         {
           "sym": "NAS100",
@@ -2674,7 +2684,7 @@
           "isWin": false,
           "session_code": "other",
           "session_name": "其它時段",
-          "id": 15
+          "id": 11
         },
         {
           "sym": "NAS100",
@@ -2691,24 +2701,7 @@
           "isWin": false,
           "session_code": "ny",
           "session_name": "美盤 (NY 09:30-11:00)",
-          "id": 16
-        },
-        {
-          "sym": "GBPUSD",
-          "side": "SELL",
-          "vol": 200000,
-          "in_price": 1.3105,
-          "out_price": 1.3074,
-          "pts_diff": 0.0031,
-          "in_ts": 1795525595325,
-          "out_ts": 1795624397380,
-          "in_time": "21:06:35",
-          "out_time": "00:33:17",
-          "pnl": 6.06,
-          "isWin": true,
-          "session_code": "premarket",
-          "session_name": "PreMarket (NY 07:00-09:00)",
-          "id": 17
+          "id": 12
         }
       ]
     },
@@ -2718,12 +2711,12 @@
       "day_of_week": "Thu",
       "net_pnl": -4.89,
       "is_win": false,
-      "trades_count": 11,
+      "trades_count": 10,
       "win_count": 3,
-      "loss_count": 8,
-      "win_rate": 27.3,
+      "loss_count": 7,
+      "win_rate": 30.0,
       "profit_factor": 0.62,
-      "payoff": 1.65,
+      "payoff": 1.44,
       "trades": [
         {
           "sym": "XAUUSD",
@@ -2830,32 +2823,48 @@
         {
           "sym": "XAUUSD",
           "side": "SELL",
-          "vol": 100,
+          "vol": 200,
           "in_price": 3569.14,
-          "out_price": 3564.41,
-          "pts_diff": 4.73,
-          "in_ts": 1795680056800,
-          "out_ts": 1795681923605,
-          "in_time": "16:00:56",
-          "out_time": "16:32:03",
-          "pnl": 4.65,
-          "isWin": true,
-          "session_code": "london",
-          "session_name": "歐盤 (NY 02:00-05:00)",
-          "id": 7
-        },
-        {
-          "sym": "XAUUSD",
-          "side": "SELL",
-          "vol": 100,
-          "in_price": 3569.14,
-          "out_price": 3569.09,
-          "pts_diff": 0.05,
+          "out_price": 3566.75,
+          "pts_diff": 2.39,
           "in_ts": 1795680056800,
           "out_ts": 1795682237624,
           "in_time": "16:00:56",
           "out_time": "16:37:17",
-          "pnl": -0.02,
+          "pnl": 4.63,
+          "isWin": true,
+          "session_code": "london",
+          "session_name": "歐盤 (NY 02:00-05:00)",
+          "id": 7,
+          "exits": [
+            {
+              "out_price": 3564.41,
+              "out_ts": 1795681923605,
+              "out_time": "16:32:03",
+              "vol": 100,
+              "pnl": 4.65
+            },
+            {
+              "out_price": 3569.09,
+              "out_ts": 1795682237624,
+              "out_time": "16:37:17",
+              "vol": 100,
+              "pnl": -0.02
+            }
+          ]
+        },
+        {
+          "sym": "GBPUSD",
+          "side": "BUY",
+          "vol": 200000,
+          "in_price": 1.31107,
+          "out_price": 1.31095,
+          "pts_diff": 0.00012,
+          "in_ts": 1795683262904,
+          "out_ts": 1795685883865,
+          "in_time": "16:54:22",
+          "out_time": "17:38:03",
+          "pnl": -0.38,
           "isWin": false,
           "session_code": "london",
           "session_name": "歐盤 (NY 02:00-05:00)",
@@ -2880,23 +2889,6 @@
         },
         {
           "sym": "GBPUSD",
-          "side": "BUY",
-          "vol": 200000,
-          "in_price": 1.31107,
-          "out_price": 1.31095,
-          "pts_diff": 0.00012,
-          "in_ts": 1795683262904,
-          "out_ts": 1795685883865,
-          "in_time": "16:54:22",
-          "out_time": "17:38:03",
-          "pnl": -0.38,
-          "isWin": false,
-          "session_code": "london",
-          "session_name": "歐盤 (NY 02:00-05:00)",
-          "id": 10
-        },
-        {
-          "sym": "GBPUSD",
           "side": "SELL",
           "vol": 1000000,
           "in_price": 1.31089,
@@ -2910,7 +2902,7 @@
           "isWin": false,
           "session_code": "london",
           "session_name": "歐盤 (NY 02:00-05:00)",
-          "id": 11
+          "id": 10
         }
       ]
     },
@@ -2920,32 +2912,15 @@
       "day_of_week": "Fri",
       "net_pnl": -15.61,
       "is_win": false,
-      "trades_count": 7,
-      "win_count": 2,
+      "trades_count": 6,
+      "win_count": 1,
       "loss_count": 5,
-      "win_rate": 28.6,
+      "win_rate": 16.7,
       "profit_factor": 0.26,
-      "payoff": 0.64,
+      "payoff": 1.28,
       "trades": [
         {
           "id": 1,
-          "sym": "HK50",
-          "side": "SELL",
-          "vol": 100,
-          "in_price": 22364.5,
-          "out_price": 22397.5,
-          "pts_diff": 33.0,
-          "in_ts": 1795749212988,
-          "out_ts": 1795750729751,
-          "in_time": "11:13:32",
-          "out_time": "11:38:49",
-          "pnl": -4.21,
-          "isWin": false,
-          "session_code": "other",
-          "session_name": "其它時段"
-        },
-        {
-          "id": 2,
           "sym": "HK50",
           "side": "SELL",
           "vol": 60,
@@ -2960,6 +2935,23 @@
           "isWin": false,
           "session_code": "asia",
           "session_name": "亞盤 (09:00-11:00)"
+        },
+        {
+          "id": 2,
+          "sym": "HK50",
+          "side": "SELL",
+          "vol": 100,
+          "in_price": 22364.5,
+          "out_price": 22397.5,
+          "pts_diff": 33.0,
+          "in_ts": 1795749212988,
+          "out_ts": 1795750729751,
+          "in_time": "11:13:32",
+          "out_time": "11:38:49",
+          "pnl": -4.21,
+          "isWin": false,
+          "session_code": "other",
+          "session_name": "其它時段"
         },
         {
           "id": 3,
@@ -2982,38 +2974,37 @@
           "id": 4,
           "sym": "HK50",
           "side": "SELL",
-          "vol": 50,
+          "vol": 100,
           "in_price": 22736.0,
-          "out_price": 22653.2,
-          "pts_diff": 82.8,
+          "out_price": 22693.9,
+          "pts_diff": 42.1,
           "in_ts": 1795759204140,
-          "out_ts": 1795760433006,
+          "out_ts": 1795787152516,
           "in_time": "14:00:04",
-          "out_time": "14:20:33",
-          "pnl": 5.29,
+          "out_time": "21:45:52",
+          "pnl": 5.38,
           "isWin": true,
           "session_code": "other",
-          "session_name": "其它時段"
+          "session_name": "其它時段",
+          "exits": [
+            {
+              "out_price": 22653.2,
+              "out_ts": 1795760433006,
+              "out_time": "14:20:33",
+              "vol": 50,
+              "pnl": 5.29
+            },
+            {
+              "out_price": 22734.6,
+              "out_ts": 1795787152516,
+              "out_time": "21:45:52",
+              "vol": 50,
+              "pnl": 0.09
+            }
+          ]
         },
         {
           "id": 5,
-          "sym": "XAUUSD",
-          "side": "SELL",
-          "vol": 100,
-          "in_price": 3677.02,
-          "out_price": 3680.75,
-          "pts_diff": 3.73,
-          "in_ts": 1795769119351,
-          "out_ts": 1795769396411,
-          "in_time": "16:45:19",
-          "out_time": "16:49:56",
-          "pnl": -3.81,
-          "isWin": false,
-          "session_code": "london",
-          "session_name": "歐盤 (NY 02:00-05:00)"
-        },
-        {
-          "id": 6,
           "sym": "XAUUSD",
           "side": "SELL",
           "vol": 100,
@@ -3030,21 +3021,21 @@
           "session_name": "歐盤 (NY 02:00-05:00)"
         },
         {
-          "id": 7,
-          "sym": "HK50",
+          "id": 6,
+          "sym": "XAUUSD",
           "side": "SELL",
-          "vol": 50,
-          "in_price": 22736.0,
-          "out_price": 22734.6,
-          "pts_diff": 1.4,
-          "in_ts": 1795759204140,
-          "out_ts": 1795787152516,
-          "in_time": "14:00:04",
-          "out_time": "21:45:52",
-          "pnl": 0.09,
-          "isWin": true,
-          "session_code": "other",
-          "session_name": "其它時段"
+          "vol": 100,
+          "in_price": 3677.02,
+          "out_price": 3680.75,
+          "pts_diff": 3.73,
+          "in_ts": 1795769119351,
+          "out_ts": 1795769396411,
+          "in_time": "16:45:19",
+          "out_time": "16:49:56",
+          "pnl": -3.81,
+          "isWin": false,
+          "session_code": "london",
+          "session_name": "歐盤 (NY 02:00-05:00)"
         }
       ]
     }

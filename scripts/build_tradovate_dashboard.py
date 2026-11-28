@@ -41,8 +41,8 @@ MULTIPLIERS = {
 # Round-trip commission per contract (USD)
 COMMISSION_PER_CONTRACT = {
     "MNQ": 1.00,
-    "MGC": 1.625,
-    "6B":  5.00,
+    "MGC": 1.55,
+    "6B":  5.05,
 }
 
 PRICE_DECIMALS = {
@@ -393,7 +393,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <span>TraderKeng Trading Journal</span>
           <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Tradovate Futures</span>
         </h1>
-        <p id="header-account-subtitle" class="text-[11px] text-[#8b9bb4]">Tradovate 期貨實盤日誌 ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.625 / 6B $5</p>
+        <p id="header-account-subtitle" class="text-[11px] text-[#8b9bb4]">Tradovate 期貨實盤日誌 ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.55 / 6B $5.05</p>
       </div>
     </div>
 
@@ -1141,7 +1141,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
       const subEl = document.getElementById('header-account-subtitle');
       if (subEl) {
-        subEl.innerText = `Tradovate 期貨實盤日誌 (${entry.meta.label}) ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.625 / 6B $5`;
+        subEl.innerText = `Tradovate 期貨實盤日誌 (${entry.meta.label}) ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.55 / 6B $5.05`;
       }
       renderMonthSwitcher();
       renderMonthlyOverview();
@@ -2243,7 +2243,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const entry = tradovateAccountsDb[currentAccountId];
       const subEl = document.getElementById('header-account-subtitle');
       if (entry && subEl) {
-        subEl.innerText = `Tradovate 期貨實盤日誌 (${entry.meta.label}) ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.625 / 6B $5`;
+        subEl.innerText = `Tradovate 期貨實盤日誌 (${entry.meta.label}) ｜ 香港時間 (HKT) ｜ 估算手續費: MNQ $1 / MGC $1.55 / 6B $5.05`;
       }
     })();
     renderMonthSwitcher();
